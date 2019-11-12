@@ -22,6 +22,8 @@
 #define MS2 BIT1
 #define MS3 BIT0
 
+#define PI 3.14159265
+
 void LED_Init(void);
 
 void Timer_Init(void);
@@ -30,6 +32,8 @@ __irq void T0_IRQHandler (void);
 
 	bool toggle;
 	int TOGGLE_STEP = STEP;
+	double sinewave;
+	int x=0;
 
 
 int main(void){
@@ -68,7 +72,7 @@ void LED_Init(void) {
 
 void Timer_Init(void){
   /* Enable and setup timer interrupt, start timer                            */
-  T0MR0         = 24000;                       /* 1msec = 12000-1 at 12.0 MHz */
+	T0MR0         = 24000;                       /* 1msec = 12000-1 at 12.0 MHz */
   T0MCR         = 3;                           /* Interrupt and Reset on MR0  */
   T0TCR         = 1;                           /* Timer0 Enable               */
   VICVectAddr4  = (unsigned long)T0_IRQHandler;/* Set Interrupt Vector        */
@@ -77,10 +81,14 @@ void Timer_Init(void){
 }
 
 __irq void T0_IRQHandler (void) {
-				/* GPIO */
-	//FIO3CLR3 = BIT0;
-	//FIO3CLR3 |= STEP;
-	//TOGGLE_STEP ^= STEP;
+
+	if (x<200)
+		x++;
+	else
+		x=0;
+	
+	sinewave = 24000*sin(((double)x/100)*PI)+48000;
+	T0MR0 				= (int)sinewave;
 	toggle ^= true;
 	
 	if (toggle){
