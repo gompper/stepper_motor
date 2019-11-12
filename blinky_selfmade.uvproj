@@ -431,16 +431,6 @@
               <FileType>1</FileType>
               <FilePath>.\blinky_selfmade.c</FilePath>
             </File>
-            <File>
-              <FileName>LCD.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\LCD.h</FilePath>
-            </File>
-            <File>
-              <FileName>LCD_4bit.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\LCD_4bit.c</FilePath>
-            </File>
           </Files>
         </Group>
       </Groups>
