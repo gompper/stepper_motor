@@ -1,0 +1,320 @@
+Component: ARM Compiler 5.06 update 6 (build 750) Tool: armlink [4d35ed]
+
+==============================================================================
+
+Section Cross References
+
+    lpc2300.o(RESET) refers to lpc2300.o(STACK) for Stack_Top
+    lpc2300.o(RESET) refers to entry.o(.ARM.Collect$$$$00000000) for __main
+    blinky_selfmade.o(i.Disp_Bargraph) refers to lcd_4bit.o(i.set_cursor) for set_cursor
+    blinky_selfmade.o(i.Disp_Bargraph) refers to lcd_4bit.o(i.lcd_putchar) for lcd_putchar
+    blinky_selfmade.o(i.T0_IRQHandler) refers to blinky_selfmade.o(i.Disp_Bargraph) for Disp_Bargraph
+    blinky_selfmade.o(i.T0_IRQHandler) refers to blinky_selfmade.o(i.LED_Out) for LED_Out
+    blinky_selfmade.o(i.T0_IRQHandler) refers to blinky_selfmade.o(.data) for counter
+    blinky_selfmade.o(i.Timer_Init) refers to blinky_selfmade.o(i.T0_IRQHandler) for T0_IRQHandler
+    blinky_selfmade.o(i.main) refers to blinky_selfmade.o(i.LED_Init) for LED_Init
+    blinky_selfmade.o(i.main) refers to blinky_selfmade.o(i.Timer_Init) for Timer_Init
+    blinky_selfmade.o(i.main) refers to lcd_4bit.o(i.lcd_init) for lcd_init
+    blinky_selfmade.o(i.main) refers to lcd_4bit.o(i.lcd_clear) for lcd_clear
+    blinky_selfmade.o(i.main) refers to lcd_4bit.o(i.lcd_print) for lcd_print
+    blinky_selfmade.o(i.main) refers to lcd_4bit.o(i.set_cursor) for set_cursor
+    lcd_4bit.o(i.lcd_clear) refers to lcd_4bit.o(i.lcd_write_cmd) for lcd_write_cmd
+    lcd_4bit.o(i.lcd_clear) refers to lcd_4bit.o(i.set_cursor) for set_cursor
+    lcd_4bit.o(i.lcd_init) refers to lcd_4bit.o(i.delay) for delay
+    lcd_4bit.o(i.lcd_init) refers to lcd_4bit.o(i.lcd_write_4bit) for lcd_write_4bit
+    lcd_4bit.o(i.lcd_init) refers to lcd_4bit.o(i.lcd_write_cmd) for lcd_write_cmd
+    lcd_4bit.o(i.lcd_init) refers to lcd_4bit.o(i.lcd_putchar) for lcd_putchar
+    lcd_4bit.o(i.lcd_init) refers to lcd_4bit.o(.constdata) for UserFont
+    lcd_4bit.o(i.lcd_print) refers to lcd_4bit.o(i.lcd_putchar) for lcd_putchar
+    lcd_4bit.o(i.lcd_putchar) refers to lcd_4bit.o(i.lcd_write_data) for lcd_write_data
+    lcd_4bit.o(i.lcd_read_status) refers to lcd_4bit.o(i.delay) for delay
+    lcd_4bit.o(i.lcd_write_4bit) refers to lcd_4bit.o(i.delay) for delay
+    lcd_4bit.o(i.lcd_write_cmd) refers to lcd_4bit.o(i.wait_while_busy) for wait_while_busy
+    lcd_4bit.o(i.lcd_write_cmd) refers to lcd_4bit.o(i.lcd_write_4bit) for lcd_write_4bit
+    lcd_4bit.o(i.lcd_write_data) refers to lcd_4bit.o(i.wait_while_busy) for wait_while_busy
+    lcd_4bit.o(i.lcd_write_data) refers to lcd_4bit.o(i.lcd_write_4bit) for lcd_write_4bit
+    lcd_4bit.o(i.set_cursor) refers to lcd_4bit.o(i.lcd_write_cmd) for lcd_write_cmd
+    lcd_4bit.o(i.wait_while_busy) refers to lcd_4bit.o(i.lcd_read_status) for lcd_read_status
+    entry.o(.ARM.Collect$$$$00000000) refers (Special) to entry10a.o(.ARM.Collect$$$$0000000D) for __rt_final_cpp
+    entry.o(.ARM.Collect$$$$00000000) refers (Special) to entry11a.o(.ARM.Collect$$$$0000000F) for __rt_final_exit
+    entry.o(.ARM.Collect$$$$00000000) refers (Special) to entry7b.o(.ARM.Collect$$$$00000008) for _main_clock
+    entry.o(.ARM.Collect$$$$00000000) refers (Special) to entry8b.o(.ARM.Collect$$$$0000000A) for _main_cpp_init
+    entry.o(.ARM.Collect$$$$00000000) refers (Special) to entry9a.o(.ARM.Collect$$$$0000000B) for _main_init
+    entry.o(.ARM.Collect$$$$00000000) refers (Special) to entry5.o(.ARM.Collect$$$$00000004) for _main_scatterload
+    entry.o(.ARM.Collect$$$$00000000) refers (Special) to entry2.o(.ARM.Collect$$$$00000001) for _main_stk
+    entry2.o(.ARM.Collect$$$$00000001) refers to entry2.o(.ARM.Collect$$$$00002712) for __lit__00000000
+    entry2.o(.ARM.Collect$$$$00002712) refers to lpc2300.o(STACK) for __initial_sp
+    entry5.o(.ARM.Collect$$$$00000004) refers to init.o(.text) for __scatterload
+    entry9a.o(.ARM.Collect$$$$0000000B) refers to blinky_selfmade.o(i.main) for main
+    entry9b.o(.ARM.Collect$$$$0000000C) refers to blinky_selfmade.o(i.main) for main
+    init.o(.text) refers to init.o(i.__ARM_common_call_via_r3) for __ARM_common_call_via_r3
+    init.o(.text) refers to entry5.o(.ARM.Collect$$$$00000004) for __main_after_scatterload
+
+
+==============================================================================
+
+Removing Unused input sections from the image.
+
+    Removing lpc2300.o(HEAP), (0 bytes).
+    Removing blinky_selfmade.o(i.LED_Off), (24 bytes).
+    Removing blinky_selfmade.o(i.LED_On), (24 bytes).
+
+3 unused section(s) (total 48 bytes) removed from the image.
+
+==============================================================================
+
+Adding Veneers to the image
+
+    Adding AT veneer (8 bytes, Inline) for call to '__scatterload' from entry5.o(.ARM.Collect$$$$00000004).
+    Adding TA veneer (8 bytes, Short) for call to '__main_after_scatterload' from init.o(.text).
+
+2 Veneer(s) (total 16 bytes) added to the image.
+
+==============================================================================
+
+Image Symbol Table
+
+    Local Symbols
+
+    Symbol Name                              Value     Ov Type        Size  Object(Section)
+
+    RESET                                    0x00000000   Section      556  lpc2300.o(RESET)
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry10a.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry9b.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry2.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry5.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry7a.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry7b.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry8a.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry8b.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry9a.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry11b.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry11a.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry10b.o ABSOLUTE
+    LCD_4bit.c                               0x00000000   Number         0  lcd_4bit.o ABSOLUTE
+    LPC2300.s                                0x00000000   Number         0  lpc2300.o ABSOLUTE
+    blinky_selfmade.c                        0x00000000   Number         0  blinky_selfmade.o ABSOLUTE
+    dc.s                                     0x00000000   Number         0  dc.o ABSOLUTE
+    handlers.s                               0x00000000   Number         0  handlers.o ABSOLUTE
+    init.s                                   0x00000000   Number         0  init.o ABSOLUTE
+    Undef_Handler                            0x00000040   ARM Code       4  lpc2300.o(RESET)
+    SWI_Handler                              0x00000044   ARM Code       4  lpc2300.o(RESET)
+    PAbt_Handler                             0x00000048   ARM Code       4  lpc2300.o(RESET)
+    DAbt_Handler                             0x0000004c   ARM Code       4  lpc2300.o(RESET)
+    IRQ_Handler                              0x00000050   ARM Code       4  lpc2300.o(RESET)
+    FIQ_Handler                              0x00000054   ARM Code       4  lpc2300.o(RESET)
+    .ARM.Collect$$$$00000000                 0x0000022c   Section        0  entry.o(.ARM.Collect$$$$00000000)
+    .ARM.Collect$$$$00000001                 0x0000022c   Section        4  entry2.o(.ARM.Collect$$$$00000001)
+    .ARM.Collect$$$$00000004                 0x00000230   Section        4  entry5.o(.ARM.Collect$$$$00000004)
+    .ARM.Collect$$$$00000008                 0x00000234   Section        0  entry7b.o(.ARM.Collect$$$$00000008)
+    .ARM.Collect$$$$0000000A                 0x00000234   Section        0  entry8b.o(.ARM.Collect$$$$0000000A)
+    .ARM.Collect$$$$0000000B                 0x00000234   Section       12  entry9a.o(.ARM.Collect$$$$0000000B)
+    .ARM.Collect$$$$0000000D                 0x00000240   Section        0  entry10a.o(.ARM.Collect$$$$0000000D)
+    .ARM.Collect$$$$0000000F                 0x00000240   Section        0  entry11a.o(.ARM.Collect$$$$0000000F)
+    .ARM.Collect$$$$00002712                 0x00000240   Section        4  entry2.o(.ARM.Collect$$$$00002712)
+    __lit__00000000                          0x00000240   Data           4  entry2.o(.ARM.Collect$$$$00002712)
+    .text                                    0x0000024c   Section       32  init.o(.text)
+    i.Disp_Bargraph                          0x00000274   Section        0  blinky_selfmade.o(i.Disp_Bargraph)
+    i.LED_Init                               0x000002d0   Section        0  blinky_selfmade.o(i.LED_Init)
+    i.LED_Out                                0x000002fc   Section        0  blinky_selfmade.o(i.LED_Out)
+    i.T0_IRQHandler                          0x00000318   Section        0  blinky_selfmade.o(i.T0_IRQHandler)
+    i.Timer_Init                             0x000003cc   Section        0  blinky_selfmade.o(i.Timer_Init)
+    i.__ARM_common_call_via_r3               0x00000414   Section        2  init.o(i.__ARM_common_call_via_r3)
+    i.__scatterload_copy                     0x00000418   Section       28  handlers.o(i.__scatterload_copy)
+    i.__scatterload_null                     0x00000434   Section        4  handlers.o(i.__scatterload_null)
+    i.__scatterload_zeroinit                 0x00000438   Section       24  handlers.o(i.__scatterload_zeroinit)
+    i.delay                                  0x00000450   Section        0  lcd_4bit.o(i.delay)
+    delay                                    0x00000450   ARM Code      24  lcd_4bit.o(i.delay)
+    i.lcd_clear                              0x00000468   Section        0  lcd_4bit.o(i.lcd_clear)
+    i.lcd_init                               0x00000488   Section        0  lcd_4bit.o(i.lcd_init)
+    i.lcd_print                              0x00000548   Section        0  lcd_4bit.o(i.lcd_print)
+    i.lcd_putchar                            0x00000570   Section        0  lcd_4bit.o(i.lcd_putchar)
+    i.lcd_read_status                        0x00000588   Section        0  lcd_4bit.o(i.lcd_read_status)
+    lcd_read_status                          0x00000588   ARM Code     188  lcd_4bit.o(i.lcd_read_status)
+    i.lcd_write_4bit                         0x00000648   Section        0  lcd_4bit.o(i.lcd_write_4bit)
+    i.lcd_write_cmd                          0x000006a0   Section        0  lcd_4bit.o(i.lcd_write_cmd)
+    i.lcd_write_data                         0x000006d4   Section        0  lcd_4bit.o(i.lcd_write_data)
+    lcd_write_data                           0x000006d4   ARM Code      48  lcd_4bit.o(i.lcd_write_data)
+    i.main                                   0x00000708   Section        0  blinky_selfmade.o(i.main)
+    i.set_cursor                             0x00000768   Section        0  lcd_4bit.o(i.set_cursor)
+    i.wait_while_busy                        0x0000079c   Section        0  lcd_4bit.o(i.wait_while_busy)
+    wait_while_busy                          0x0000079c   ARM Code      32  lcd_4bit.o(i.wait_while_busy)
+    .constdata                               0x000007bc   Section       64  lcd_4bit.o(.constdata)
+    .data                                    0x40000000   Section        8  blinky_selfmade.o(.data)
+    counter                                  0x40000000   Data           4  blinky_selfmade.o(.data)
+    counter2                                 0x40000004   Data           4  blinky_selfmade.o(.data)
+    STACK                                    0x40000008   Section     1288  lpc2300.o(STACK)
+    Stack_Top                                0x40000510   Data           0  lpc2300.o(STACK)
+
+    Global Symbols
+
+    Symbol Name                              Value     Ov Type        Size  Object(Section)
+
+    BuildAttributes$$THM_ISAv1$ARM_ISAv4$S$PE$A:L22$X:L11$S22$IEEE1$IW$USESV6$~STKCKD$USESV7$~SHL$OSPACE$EBA8$MICROLIB$REQ8$PRES8$EABIv2 0x00000000   Number         0  anon$$obj.o ABSOLUTE
+    __ARM_use_no_argv                        0x00000000   Number         0  blinky_selfmade.o ABSOLUTE
+    __cpp_initialize__aeabi_                  - Undefined Weak Reference
+    __cxa_finalize                            - Undefined Weak Reference
+    __decompress                              - Undefined Weak Reference
+    _clock_init                               - Undefined Weak Reference
+    _microlib_exit                            - Undefined Weak Reference
+    Reset_Handler                            0x00000058   ARM Code       0  lpc2300.o(RESET)
+    __main                                   0x0000022c   ARM Code       0  entry.o(.ARM.Collect$$$$00000000)
+    _main_stk                                0x0000022c   ARM Code       0  entry2.o(.ARM.Collect$$$$00000001)
+    _main_scatterload                        0x00000230   ARM Code       0  entry5.o(.ARM.Collect$$$$00000004)
+    __main_after_scatterload                 0x00000234   ARM Code       0  entry5.o(.ARM.Collect$$$$00000004)
+    _main_clock                              0x00000234   ARM Code       0  entry7b.o(.ARM.Collect$$$$00000008)
+    _main_cpp_init                           0x00000234   ARM Code       0  entry8b.o(.ARM.Collect$$$$0000000A)
+    _main_init                               0x00000234   ARM Code       0  entry9a.o(.ARM.Collect$$$$0000000B)
+    __rt_final_cpp                           0x00000240   ARM Code       0  entry10a.o(.ARM.Collect$$$$0000000D)
+    __rt_final_exit                          0x00000240   ARM Code       0  entry11a.o(.ARM.Collect$$$$0000000F)
+    Inline ARM to Thumb Veneer to __scatterload 0x00000244   ARM Code       8  init.o(.text)
+    __scatterload                            0x0000024d   Thumb Code    24  init.o(.text)
+    __scatterload_rt2                        0x0000024d   Thumb Code     0  init.o(.text)
+    Short Thumb to ARM Veneer to __main_after_scatterload 0x0000026d   Thumb Code     8  anon$$obj.o(Veneer$$Code)
+    Disp_Bargraph                            0x00000274   ARM Code      92  blinky_selfmade.o(i.Disp_Bargraph)
+    LED_Init                                 0x000002d0   ARM Code      36  blinky_selfmade.o(i.LED_Init)
+    LED_Out                                  0x000002fc   ARM Code      24  blinky_selfmade.o(i.LED_Out)
+    T0_IRQHandler                            0x00000318   ARM Code     168  blinky_selfmade.o(i.T0_IRQHandler)
+    Timer_Init                               0x000003cc   ARM Code      60  blinky_selfmade.o(i.Timer_Init)
+    __ARM_common_call_via_r3                 0x00000415   Thumb Code     2  init.o(i.__ARM_common_call_via_r3)
+    __scatterload_copy                       0x00000418   ARM Code      28  handlers.o(i.__scatterload_copy)
+    __scatterload_null                       0x00000434   ARM Code       4  handlers.o(i.__scatterload_null)
+    __scatterload_zeroinit                   0x00000438   ARM Code      24  handlers.o(i.__scatterload_zeroinit)
+    lcd_clear                                0x00000468   ARM Code      32  lcd_4bit.o(i.lcd_clear)
+    lcd_init                                 0x00000488   ARM Code     176  lcd_4bit.o(i.lcd_init)
+    lcd_print                                0x00000548   ARM Code      40  lcd_4bit.o(i.lcd_print)
+    lcd_putchar                              0x00000570   ARM Code      24  lcd_4bit.o(i.lcd_putchar)
+    lcd_write_4bit                           0x00000648   ARM Code      84  lcd_4bit.o(i.lcd_write_4bit)
+    lcd_write_cmd                            0x000006a0   ARM Code      48  lcd_4bit.o(i.lcd_write_cmd)
+    main                                     0x00000708   ARM Code      76  blinky_selfmade.o(i.main)
+    set_cursor                               0x00000768   ARM Code      52  lcd_4bit.o(i.set_cursor)
+    UserFont                                 0x000007bc   Data          64  lcd_4bit.o(.constdata)
+    Region$$Table$$Base                      0x000007fc   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x0000081c   Number         0  anon$$obj.o(Region$$Table)
+    __initial_sp                             0x40000408   Data         264  lpc2300.o(STACK)
+
+
+
+==============================================================================
+
+Memory Map of the image
+
+  Image Entry point : 0x0000022c
+
+  Load Region LR_IROM1 (Base: 0x00000000, Size: 0x00000824, Max: 0x00080000, ABSOLUTE)
+
+    Execution Region ER_IROM1 (Exec base: 0x00000000, Load base: 0x00000000, Size: 0x0000081c, Max: 0x00080000, ABSOLUTE)
+
+    Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
+
+    0x00000000   0x00000000   0x0000022c   Code   RO            3    RESET               lpc2300.o
+    0x0000022c   0x0000022c   0x00000000   Code   RO          142  * .ARM.Collect$$$$00000000  mc_t.l(entry.o)
+    0x0000022c   0x0000022c   0x00000004   Code   RO          145    .ARM.Collect$$$$00000001  mc_t.l(entry2.o)
+    0x00000230   0x00000230   0x00000004   Code   RO          147    .ARM.Collect$$$$00000004  mc_t.l(entry5.o)
+    0x00000234   0x00000234   0x00000000   Code   RO          149    .ARM.Collect$$$$00000008  mc_t.l(entry7b.o)
+    0x00000234   0x00000234   0x00000000   Code   RO          151    .ARM.Collect$$$$0000000A  mc_t.l(entry8b.o)
+    0x00000234   0x00000234   0x0000000c   Code   RO          152    .ARM.Collect$$$$0000000B  mc_t.l(entry9a.o)
+    0x00000240   0x00000240   0x00000000   Code   RO          154    .ARM.Collect$$$$0000000D  mc_t.l(entry10a.o)
+    0x00000240   0x00000240   0x00000000   Code   RO          156    .ARM.Collect$$$$0000000F  mc_t.l(entry11a.o)
+    0x00000240   0x00000240   0x00000004   Code   RO          146    .ARM.Collect$$$$00002712  mc_t.l(entry2.o)
+    0x00000244   0x00000244   0x00000008   Ven    RO          158    .text               mc_t.l(init.o)
+    0x0000024c   0x0000024c   0x00000020   Code   RO          158    .text               mc_t.l(init.o)
+    0x0000026c   0x0000026c   0x00000008   Ven    RO          171    Veneer$$Code        anon$$obj.o
+    0x00000274   0x00000274   0x0000005c   Code   RO            8    i.Disp_Bargraph     blinky_selfmade.o
+    0x000002d0   0x000002d0   0x0000002c   Code   RO            9    i.LED_Init          blinky_selfmade.o
+    0x000002fc   0x000002fc   0x0000001c   Code   RO           12    i.LED_Out           blinky_selfmade.o
+    0x00000318   0x00000318   0x000000b4   Code   RO           13    i.T0_IRQHandler     blinky_selfmade.o
+    0x000003cc   0x000003cc   0x00000048   Code   RO           14    i.Timer_Init        blinky_selfmade.o
+    0x00000414   0x00000414   0x00000002   Code   RO          160    i.__ARM_common_call_via_r3  mc_t.l(init.o)
+    0x00000416   0x00000416   0x00000002   PAD
+    0x00000418   0x00000418   0x0000001c   Code   RO          164    i.__scatterload_copy  mc_t.l(handlers.o)
+    0x00000434   0x00000434   0x00000004   Code   RO          165    i.__scatterload_null  mc_t.l(handlers.o)
+    0x00000438   0x00000438   0x00000018   Code   RO          166    i.__scatterload_zeroinit  mc_t.l(handlers.o)
+    0x00000450   0x00000450   0x00000018   Code   RO           71    i.delay             lcd_4bit.o
+    0x00000468   0x00000468   0x00000020   Code   RO           72    i.lcd_clear         lcd_4bit.o
+    0x00000488   0x00000488   0x000000c0   Code   RO           73    i.lcd_init          lcd_4bit.o
+    0x00000548   0x00000548   0x00000028   Code   RO           74    i.lcd_print         lcd_4bit.o
+    0x00000570   0x00000570   0x00000018   Code   RO           75    i.lcd_putchar       lcd_4bit.o
+    0x00000588   0x00000588   0x000000c0   Code   RO           76    i.lcd_read_status   lcd_4bit.o
+    0x00000648   0x00000648   0x00000058   Code   RO           77    i.lcd_write_4bit    lcd_4bit.o
+    0x000006a0   0x000006a0   0x00000034   Code   RO           78    i.lcd_write_cmd     lcd_4bit.o
+    0x000006d4   0x000006d4   0x00000034   Code   RO           79    i.lcd_write_data    lcd_4bit.o
+    0x00000708   0x00000708   0x00000060   Code   RO           15    i.main              blinky_selfmade.o
+    0x00000768   0x00000768   0x00000034   Code   RO           80    i.set_cursor        lcd_4bit.o
+    0x0000079c   0x0000079c   0x00000020   Code   RO           81    i.wait_while_busy   lcd_4bit.o
+    0x000007bc   0x000007bc   0x00000040   Data   RO           82    .constdata          lcd_4bit.o
+    0x000007fc   0x000007fc   0x00000020   Data   RO          162    Region$$Table       anon$$obj.o
+
+
+    Execution Region RW_IRAM1 (Exec base: 0x40000000, Load base: 0x0000081c, Size: 0x00000510, Max: 0x00010000, ABSOLUTE)
+
+    Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
+
+    0x40000000   0x0000081c   0x00000008   Data   RW           16    .data               blinky_selfmade.o
+    0x40000008        -       0x00000508   Zero   RW            1    STACK               lpc2300.o
+
+
+==============================================================================
+
+Image component sizes
+
+
+      Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Object Name
+
+       512         56          0          8          0       4721   blinky_selfmade.o
+       780         32         64          0          0       7342   lcd_4bit.o
+       556         80          0          0       1288        456   lpc2300.o
+
+    ----------------------------------------------------------------------
+      1856        168         96          8       1288      12519   Object Totals
+         8          0         32          0          0          0   (incl. Generated)
+         0          0          0          0          0          0   (incl. Padding)
+
+    ----------------------------------------------------------------------
+
+      Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Library Member Name
+
+         0          0          0          0          0          0   entry.o
+         0          0          0          0          0          0   entry10a.o
+         0          0          0          0          0          0   entry11a.o
+         8          4          0          0          0          0   entry2.o
+         4          0          0          0          0          0   entry5.o
+         0          0          0          0          0          0   entry7b.o
+         0          0          0          0          0          0   entry8b.o
+        12          4          0          0          0          0   entry9a.o
+        56          0          0          0          0          0   handlers.o
+        42          8          0          0          0        136   init.o
+
+    ----------------------------------------------------------------------
+       124         16          0          0          0        136   Library Totals
+         2          0          0          0          0          0   (incl. Padding)
+
+    ----------------------------------------------------------------------
+
+      Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Library Name
+
+       122         16          0          0          0        136   mc_t.l
+
+    ----------------------------------------------------------------------
+       124         16          0          0          0        136   Library Totals
+
+    ----------------------------------------------------------------------
+
+==============================================================================
+
+
+      Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
+
+      1980        184         96          8       1288      12131   Grand Totals
+      1980        184         96          8       1288      12131   ELF Image Totals
+      1980        184         96          8          0          0   ROM Totals
+
+==============================================================================
+
+    Total RO  Size (Code + RO Data)                 2076 (   2.03kB)
+    Total RW  Size (RW Data + ZI Data)              1296 (   1.27kB)
+    Total ROM Size (Code + RO Data + RW Data)       2084 (   2.04kB)
+
+==============================================================================
+
