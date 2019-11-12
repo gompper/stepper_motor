@@ -2,6 +2,7 @@
 #include <LPC23xx.H>                    /* LPC23xx definitions                */
 //#include "LCD.h"                      	/* Graphic LCD function prototypes    */
 #include <stdbool.h>
+#include <math.h>
 
 #define BIT0 0x01
 #define BIT1 0x02
@@ -17,6 +18,9 @@
 #define ENABLE BIT7
 #define SLEEP BIT1
 #define STEP BIT2		
+#define MS1 BIT2
+#define MS2 BIT1
+#define MS3 BIT0
 
 void LED_Init(void);
 
@@ -29,8 +33,6 @@ __irq void T0_IRQHandler (void);
 
 
 int main(void){
-	int i;
-
 	
 	LED_Init();
 	Timer_Init();
@@ -38,6 +40,10 @@ int main(void){
 		/* Motor GPIO */
 	PINMODE7 = 0x00000000; // pull up resistor
 	PINSEL7 &= 0x00000000;		/* clear P3.23..26 */
+	
+	FIO4DIR0 |= MS1 + MS2 + MS3;
+	FIO4MASK0 = 0x00000000;
+	FIO4SET0 |= MS1 + MS2 + MS3;
 	
 	FIO3DIR2 |= ENABLE;
 	FIO3MASK2 	= 0x00000000;
@@ -48,8 +54,6 @@ int main(void){
 	FIO3SET3 |= SLEEP;
 	FIO3SET3 |= RESET;
 	
-	
-  for (i = 0; i < 20000000; i++);       /* Wait for initial display           */
 	while(1);
 }
 
@@ -78,10 +82,11 @@ __irq void T0_IRQHandler (void) {
 	//FIO3CLR3 |= STEP;
 	//TOGGLE_STEP ^= STEP;
 	toggle ^= true;
+	
 	if (toggle){
-		FIO3SET3 |= STEP;
+		FIO3SET3 |= STEP; // Step On
 	} else {
-		FIO3CLR3 = STEP;
+		FIO3CLR3 = STEP;	// Step Off
 	}
 
 	FIO2CLR = 0xFF;                       /* Turn off all LEDs                  */
