@@ -12,13 +12,13 @@
 #define BIT6 0x40
 #define BIT7 0x80
 
-#define RESET BIT0
-#define ENABLE BIT7
-#define SLEEP BIT1
-#define STEP BIT2		
-#define MS1 BIT2
-#define MS2 BIT1
-#define MS3 BIT0
+#define RESET BIT0	// P3.24
+#define ENABLE BIT7	// P3.23
+#define SLEEP BIT1	// P3.25
+#define STEP BIT2 	// P3.26	
+#define MS1 BIT2	// P4.2
+#define MS2 BIT1	// P4.1
+#define MS3 BIT0	// P4.0
 
 #define PI 3.14159265
 
@@ -78,7 +78,7 @@ __irq void T0_IRQHandler (void) {
 		x=0;
 	
 	sinewave = 24000*sin(((double)x/100)*PI)+48000; /* erzeugt ein sinusförmiges Signal mit einem positiven Offset*/
-	T0MR0 				= (int)sinewave;									/* Sinussignal wird in das Timer0 Register geschrieben */
+	//T0MR0 				= (int)sinewave;									/* Sinussignal wird in das Timer0 Register geschrieben */
 	toggle ^= true;
 	
 	if (toggle){
