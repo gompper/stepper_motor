@@ -24,12 +24,14 @@
 #define PI 3.14159265
 
 void Timer_Init(void);
+void toggle_dir(void);
 __irq void T0_IRQHandler (void);
 
 	bool toggle;
 	int TOGGLE_STEP = STEP;
 	double sinewave;
 	int x=0;
+	int STEP_CNT=0;
 
 int main(void){
 	
@@ -38,38 +40,40 @@ int main(void){
 
 	/* Pin Function */
 	/* 00 = GPIO */
-	PINSEL3 &= 0x00000000;		// P1.16..31	
-	PINSEL6 &= 0x00005555; 		// P3.00..15
-	PINSEL7 &= 0x00000000;		// P3.16..31 <--
-	PINSEL8 &= 0x55555400;		// P4.00..15 <--
-	PINSEL9 &= 0x50090000;		// P4.16..31
-	//PINSEL10 &= 0x00000008;		// ETM Interface
-	PINSEL10 &= 0x00000000;		// ETM Interface disabled
+		PINSEL3 &= 0x00000000;		// P1.16..31	
+		PINSEL6 &= 0x00005555; 		// P3.00..15
+		PINSEL7 &= 0x00000000;		// P3.16..31 <--
+		PINSEL8 &= 0x55555400;		// P4.00..15 <--
+		PINSEL9 &= 0x50090000;		// P4.16..31
+		//PINSEL10 &= 0x00000008;		// ETM Interface
+		PINSEL10 &= 0x00000000;		// ETM Interface disabled
 	
 	/* Pull-Up/-Down Resistors */
 	/* 	00 = Pull-Up, 10 = no Resistor, 11 = Pull-Down  */
-	PINMODE3 = 0x00000000;		// P3.16..31
-	PINMODE7 = 0x00000000; 		/* pull up resistor */
-	PINMODE8 = 0x00000300;		// P4.00..15
+		PINMODE3 = 0x00000000;		// P1.16..31
+		PINMODE7 = 0x00000000; 		// P3.16..31
+		PINMODE8 = 0x00000000;		// P4.00..15
 	
 	/* Input / Output */
-	FIO4DIR0 |= DIR + MS1 + MS2 + MS3; 	// P4.00..07
-	FIO3DIR2 |= ENABLE;									// P3.16..23
-	FIO3DIR3 |= SLEEP + RESET + STEP;		// P3.24..31
+		FIO4DIR0 |= DIR + MS1 + MS2 + MS3; 	// P4.00..07
+		FIO3DIR2 |= ENABLE;									// P3.16..23
+		FIO3DIR3 |= SLEEP + RESET + STEP;		// P3.24..31
 	
 	/* Pins maskieren */
-	FIO3MASK2 	= 0x00000000;	// P3.16..23
-	FIO3MASK3 	= 0x00000000;	// P3.24..31
-	FIO4MASK0 	= 0x00000000;	// P4.00..07
+		FIO3MASK2 	= 0x00;	// P3.16..23
+		FIO3MASK3 	= 0x00;	// P3.24..31
+		FIO4MASK0 	= 0x00;	// P4.00..07
 	
 	/* Pins setzen */
-	FIO3CLR2 |= ENABLE;			/* Enable ist low Active */
-	FIO3SET3 |= SLEEP;			/* Sleep ist low Active */
-	FIO3SET3 |= RESET;			/* Reset ist low Active */
-	//FIO4SET0 |= MS1 + MS2 + MS3; // Sixteenth Step 
-	FIO4CLR0 |= MS1 + MS2 + MS3; // Full Step
-	FIO4SET0 |= DIR; // rotate right
-	//FIO4CLR0 = DIR; // rotate left
+		FIO3CLR2 |= ENABLE;			/* Enable ist low Active */
+		FIO3SET3 |= SLEEP;			/* Sleep ist low Active */
+		FIO3SET3 |= RESET;			/* Reset ist low Active */
+		
+		//FIO4SET0 |= MS1 + MS2 + MS3; // Sixteenth Step 
+		FIO4CLR0 |= MS1 + MS2 + MS3; // Full Step
+		
+		FIO4SET0 |= DIR; // rotate right
+		//FIO4CLR0 = DIR; // rotate left
 
 	while(1);
 }
@@ -82,7 +86,8 @@ void LED_Init(void) {
 
 void Timer_Init(void){
   /* Enable and setup timer interrupt, start timer                            */
-	T0MR0         = 24000;                       /* 1msec = 12000-1 at 12.0 MHz */
+	//T0MR0         = 24000;                       /* 1msec = 12000-1 at 12.0 MHz */
+	T0MR0         = 22000;                       /* 1msec = 12000-1 at 12.0 MHz */
   T0MCR         = 3;                           /* Interrupt and Reset on MR0  */
   T0TCR         = 1;                           /* Timer0 Enable               */
   VICVectAddr4  = (unsigned long)T0_IRQHandler;/* Set Interrupt Vector        */
@@ -106,10 +111,25 @@ __irq void T0_IRQHandler (void) {
 	} else {
 		FIO3CLR3 = STEP;	/* Step Off */
 	}
+	
+	
+	STEP_CNT++;
+	if(STEP_CNT%1000){
+		toggle_dir();
+	}
 
 
   T0IR        = 1;                      /* Clear interrupt flag               */
   VICVectAddr = 0;                      /* Acknowledge Interrupt              */
 }
 
+void toggle_dir(){
+	int reg_dir = FIO4PIN0 & DIR; 
+	if(reg_dir > 0){
+		FIO4CLR0 = DIR;
+	}
+	else{
+		FIO4SET0 = DIR;
+	}
+}
 
