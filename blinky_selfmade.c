@@ -29,17 +29,22 @@ void toggle_dir(void);
 void turn_left(void);
 void turn_right(void);
 void pwm_init(void);
+void interrupt_init(void);
+
 __irq void T0_IRQHandler (void);
+__irq void PWM_ISR(void);
 
 	bool toggle;
 	int TOGGLE_STEP = STEP;
 	double sinewave;
 	int x=0;
 	int STEP_CNT=0;
+	
+	int debug_counter=0;
 
 int main(void){
 	
-	Timer_Init();
+	//Timer_Init();
 
 
 	/* Pin Function */
@@ -79,7 +84,9 @@ int main(void){
 		FIO4SET0 |= DIR; // rotate right
 		//FIO4CLR0 = DIR; // rotate left
 	
-	//pwm_init();
+	pwm_init();
+	interrupt_init();
+
 	
 	
 	while(1);
@@ -144,9 +151,10 @@ void pwm_init(){
 	PWM1TCR = 0x02; // Reset and disable counter for PWM
 	
 	PWM1PR	= 0x1D; // Prescale value for 1usec, Pclk=30MHz
-	PWM1MR0 = 120000;
-	PWM1MR3 = 30000;
-	PWM1MCR = 0x2;
+	PWM1MR0 = 200000;
+	PWM1MR3 = 1000;
+	//PWM1MCR = 0x2; PWM ohne interrupt
+	PWM1MCR = 0x3; // MR0 Interrupt und MR0 Reset 
 	PWM1LER = 0x9;
 	PWM1PCR = 0x800; // PWM3 output enabled
 	PCONP = BIT1 + BIT6 ; 	// PCPWM1 Power/Clock Control Bit
@@ -159,3 +167,26 @@ void pwm_init(){
 	PWM1TCR = 0x9; // Counter Enable + PWM Enable
 }
 
+__irq void PWM_ISR(void)
+{	
+	if ( PWM1IR & 0x0008 )	/* If interrupt due to PWM3 */
+	{
+		debug_counter++;
+		
+		PWM1IR = 0x0008;	/* Clear PWM3 interrupt */
+	}	
+	VICVectAddr = 0x00000000;
+}
+
+void interrupt_init(void)
+{
+	
+	VICVectAddr8 = (unsigned) PWM_ISR; /* PWM ISR Address */
+	VICVectCntl8 = (VICVectCntl0 | 8); /* Enable PWM IRQ slot */
+	//VICVectCntl0 = (0x00000020 | 8); /* Enable PWM IRQ slot */
+	//VICVectPriority10 = (0x00000020 | 8); /* Enable PWM IRQ slot */
+	//VICIntEnable = VICIntEnable | 0x00000100; /* Enable PWM interrupt */
+	VICIntEnable = 1 << 8;
+	VICIntSelect = VICIntSelect | 0x00000000; /* PWM configured as IRQ */
+		
+}
