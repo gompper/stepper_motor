@@ -24,6 +24,9 @@
 
 #define PI 3.14159265
 
+#define RIGHT 1
+#define LEFT	0
+
 void Timer_Init(void);
 void toggle_dir(void);
 void turn_left(void);
@@ -40,7 +43,8 @@ __irq void PWM_ISR(void);
 	int x=0;
 	int STEP_CNT=0;
 	
-	int debug_counter=0;
+	int step_counter = 0;
+	int direction = RIGHT;
 
 int main(void){
 	
@@ -169,11 +173,14 @@ void pwm_init(){
 
 __irq void PWM_ISR(void)
 {	
-	if ( PWM1IR & 0x0008 )	/* If interrupt due to PWM3 */
+	if ( PWM1IR & 0x0001 )	/* If interrupt due to match channel 0 */
 	{
-		debug_counter++;
-		
-		PWM1IR = 0x0008;	/* Clear PWM3 interrupt */
+		if (direction == RIGHT){
+			step_counter++;
+		}else if (direction == LEFT){
+			step_counter--;
+		}
+		PWM1IR = 0x0001;	/* Clear flag for PWM match channel 0 interrupt */
 	}	
 	VICVectAddr = 0x00000000;
 }
