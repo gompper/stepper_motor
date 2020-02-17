@@ -1,10 +1,0 @@
-Dependencies for Project 'blinky_selfmade', Target 'Target 1': (DO NOT MODIFY !)
-F (.\LPC2300.s)(0x559D2F20)(--cpu ARM7TDMI --pd "__EVAL SETA 1" -g --apcs=interwork --pd "__MICROLIB SETA 1"-IC:\Keil_v5\ARM\RV31\INC-IC:\Keil_v5\ARM\CMSIS\Include-IC:\Keil_v5\ARM\INC\Philips--pd "__UVISION_VERSION SETA 528"--list .\listings\lpc2300.lst --xref -o .\objects\lpc2300.o --depend .\objects\lpc2300.d)
-F (.\blinky_selfmade.c)(0x5DCAD96D)(--c99 --gnu -c --cpu ARM7TDMI -D__EVAL -D__MICROLIB -g -O0 --apcs=interwork --split_sections-IC:\Keil_v5\ARM\RV31\INC-IC:\Keil_v5\ARM\CMSIS\Include-IC:\Keil_v5\ARM\INC\Philips-D__UVISION_VERSION="528"-o .\objects\blinky_selfmade.o --omf_browse .\objects\blinky_selfmade.crf --depend .\objects\blinky_selfmade.d)
-I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5CEBDC52)
-I (C:\Keil_v5\ARM\INC\Philips\LPC23xx.H)(0x559D3D78)
-I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x5CEBDC4E)
-I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x5CEBDC46)
-F (.\LCD.h)(0x559D2FD2)()
-F (.\LCD_4bit.c)(0x559D2FD2)(--c99 --gnu -c --cpu ARM7TDMI -D__EVAL -D__MICROLIB -g -O0 --apcs=interwork --split_sections-IC:\Keil_v5\ARM\RV31\INC-IC:\Keil_v5\ARM\CMSIS\Include-IC:\Keil_v5\ARM\INC\Philips-D__UVISION_VERSION="528"-o .\objects\lcd_4bit.o --omf_browse .\objects\lcd_4bit.crf --depend .\objects\lcd_4bit.d)
-I (C:\Keil_v5\ARM\INC\Philips\LPC23xx.H)(0x559D3D78)
