@@ -68,7 +68,6 @@ int main(void){
 		switch(state){
 			case Drive_Fast:
 				turn_left();
-				direction = LEFT;
 				PWM_Set(20000);
 				while(step_counter > 1){
 				}
@@ -76,7 +75,6 @@ int main(void){
 				break;
 			case Drive_Slow:
 				turn_right();
-				direction = RIGHT;
 				PWM_Set(200000);
 				while(step_counter <= 30){
 				}
@@ -182,10 +180,12 @@ void toggle_dir(){
 
 void turn_right(){
 	FIO4SET0 = DIR;
+	direction = RIGHT;
 }
 
 void turn_left(){
 	FIO4CLR0 = DIR;
+	direction = LEFT;
 }
 
 /* PWM Initialization */
