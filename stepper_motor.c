@@ -36,6 +36,8 @@ void PWM_Set(int);
 void Interrupt_Init(void);
 void GPIO_Init(void);
 void GPIO_Set(void);
+int drive(int a, int v_max, int dist, int dir);
+void turn(int);
 
 __irq void T0_IRQHandler (void);
 __irq void PWM_ISR(void);
@@ -56,7 +58,7 @@ __irq void PWM_ISR(void);
 	}SystemState;
 	
 int main(void){
-	SystemState state = Drive_Slow;
+	SystemState state = Wait;
 	
 	//Timer_Init();
 	GPIO_Init();
@@ -76,11 +78,14 @@ int main(void){
 			case Drive_Slow:
 				turn_right();
 				PWM_Set(200000);
-				while(step_counter <= 30){
+				while(step_counter <= 50){
 				}
 				state = Drive_Fast;
 				break;
-			case Wait: 
+			case Wait:
+				drive(10,20,5,RIGHT);
+				
+				while(1);
 				break;
 			default:
 				break;
@@ -237,4 +242,29 @@ void Interrupt_Init(void)
 	VICVectCntl8 = (VICVectCntl0 | 8); 	/* Enable PWM IRQ slot */
 	VICIntEnable = 1 << 8;							/* Enable PWM Interrupt */
 	VICIntSelect = VICIntSelect | 0x00000000; /* PWM configured as IRQ */
+}
+
+int drive(int a, int v_max, int dist, int dir){
+	int start = step_counter;
+	turn(dir);
+	
+	while( (step_counter - start) < dist ){
+		PWM_Set(2000000);
+		while( (step_counter - start) < dist ){}
+	}
+	PWM1TCR = 0x02; // Reset and disable counter for PWM
+	return 0;
+}
+
+void turn(int dir){
+	switch(dir){
+		case RIGHT:
+			turn_right();
+			break;
+		case LEFT:
+			turn_left();
+			break;
+		default:
+			break;
+	}
 }
