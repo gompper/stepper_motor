@@ -32,6 +32,7 @@ void toggle_dir(void);
 void turn_left(void);
 void turn_right(void);
 void PWM_Init(void);
+void PWM_Set(int);
 void Interrupt_Init(void);
 void GPIO_Init(void);
 void GPIO_Set(void);
@@ -48,7 +49,14 @@ __irq void PWM_ISR(void);
 	int step_counter = 0;
 	int direction = RIGHT;
 
+	typedef enum{
+		Drive_Fast,
+		Drive_Slow,
+		Wait
+	}SystemState;
+	
 int main(void){
+	SystemState state = Drive_Slow;
 	
 	//Timer_Init();
 	GPIO_Init();
@@ -56,7 +64,30 @@ int main(void){
 	PWM_Init();
 	Interrupt_Init();
 	
-	while(1);
+	while(1){
+		switch(state){
+			case Drive_Fast:
+				turn_left();
+				direction = LEFT;
+				PWM_Set(20000);
+				while(step_counter > 1){
+				}
+				state = Drive_Slow;
+				break;
+			case Drive_Slow:
+				turn_right();
+				direction = RIGHT;
+				PWM_Set(200000);
+				while(step_counter <= 30){
+				}
+				state = Drive_Fast;
+				break;
+			case Wait: 
+				break;
+			default:
+				break;
+		}
+	}
 }
 
 void GPIO_Init(void){
@@ -175,7 +206,13 @@ void PWM_Init(){
 	// MR0 mind. 200, MR1 = 1, MR2 = 100 bei Prozessorgeschw. von 72 MHz; ca. 72 Takte ~ 1 us
 	//PWM1CTCR = 0; kp ob das gebraucht wird
 	
-	PWM1TCR = 0x9; // Counter Enable + PWM Enable
+	//PWM1TCR = 0x9; // Counter Enable + PWM Enable
+}
+
+void PWM_Set(int T){
+	PWM1TCR = 0x02; // Reset and disable counter for PWM
+	PWM1MR0 = T; 		// Periodendauer
+	PWM1TCR = 0x9; 	// Counter Enable + PWM Enable
 }
 
 /* Interrupt Service Routine */
