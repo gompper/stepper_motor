@@ -31,8 +31,10 @@ void Timer_Init(void);
 void toggle_dir(void);
 void turn_left(void);
 void turn_right(void);
-void pwm_init(void);
-void interrupt_init(void);
+void PWM_Init(void);
+void Interrupt_Init(void);
+void GPIO_Init(void);
+void GPIO_Set(void);
 
 __irq void T0_IRQHandler (void);
 __irq void PWM_ISR(void);
@@ -49,8 +51,15 @@ __irq void PWM_ISR(void);
 int main(void){
 	
 	//Timer_Init();
+	GPIO_Init();
+	GPIO_Set();
+	PWM_Init();
+	Interrupt_Init();
+	
+	while(1);
+}
 
-
+void GPIO_Init(void){
 	/* Pin Function */
 	/* 00 = GPIO */
 		PINSEL3 &= 0x00000000;		// P1.16..31	
@@ -76,24 +85,21 @@ int main(void){
 		FIO3MASK2 	= 0x00;	// P3.16..23
 		FIO3MASK3 	= 0x00;	// P3.24..31
 		FIO4MASK0 	= 0x00;	// P4.00..07
-	
-	/* Pins setzen */
+}
+
+void GPIO_Set(void){
+		/* Pins setzen */
 		FIO3CLR2 |= ENABLE;			/* Enable ist low Active */
 		FIO3SET3 |= SLEEP;			/* Sleep ist low Active */
 		FIO3SET3 |= RESET;			/* Reset ist low Active */
 		
+	/* Schrittweite festlegen */
 		//FIO4SET0 |= MS1 + MS2 + MS3; // Sixteenth Step 
 		FIO4CLR0 |= MS1 + MS2 + MS3; // Full Step
 		
+	/* Richtung festlegen */
 		FIO4SET0 |= DIR; // rotate right
 		//FIO4CLR0 = DIR; // rotate left
-	
-	pwm_init();
-	interrupt_init();
-
-	
-	
-	while(1);
 }
 
 void LED_Init(void) { 
@@ -151,7 +157,8 @@ void turn_left(){
 	FIO4CLR0 = DIR;
 }
 
-void pwm_init(){
+/* PWM Initialization */
+void PWM_Init(){
 	PWM1TCR = 0x02; // Reset and disable counter for PWM
 	
 	PWM1PR	= 0x1D; // Prescale value for 1usec, Pclk=30MHz
@@ -171,6 +178,7 @@ void pwm_init(){
 	PWM1TCR = 0x9; // Counter Enable + PWM Enable
 }
 
+/* Interrupt Service Routine */
 __irq void PWM_ISR(void)
 {	
 	if ( PWM1IR & 0x0001 )	/* If interrupt due to match channel 0 */
@@ -185,15 +193,11 @@ __irq void PWM_ISR(void)
 	VICVectAddr = 0x00000000;
 }
 
-void interrupt_init(void)
+/* Interrupt initialization */
+void Interrupt_Init(void)
 {
-	
-	VICVectAddr8 = (unsigned) PWM_ISR; /* PWM ISR Address */
-	VICVectCntl8 = (VICVectCntl0 | 8); /* Enable PWM IRQ slot */
-	//VICVectCntl0 = (0x00000020 | 8); /* Enable PWM IRQ slot */
-	//VICVectPriority10 = (0x00000020 | 8); /* Enable PWM IRQ slot */
-	//VICIntEnable = VICIntEnable | 0x00000100; /* Enable PWM interrupt */
-	VICIntEnable = 1 << 8;
+	VICVectAddr8 = (unsigned) PWM_ISR; 	/* PWM ISR Address */
+	VICVectCntl8 = (VICVectCntl0 | 8); 	/* Enable PWM IRQ slot */
+	VICIntEnable = 1 << 8;							/* Enable PWM Interrupt */
 	VICIntSelect = VICIntSelect | 0x00000000; /* PWM configured as IRQ */
-		
 }
