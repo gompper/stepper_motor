@@ -36,7 +36,7 @@ void PWM_Set(int);
 void Interrupt_Init(void);
 void GPIO_Init(void);
 void GPIO_Set(void);
-int drive(int a, int v_max, int dist, int dir);
+int drive(int a,int v_start, int v_max, int dist, int dir);
 void turn(int);
 
 __irq void T0_IRQHandler (void);
@@ -83,7 +83,7 @@ int main(void){
 				state = Drive_Fast;
 				break;
 			case Wait:
-				drive(10,20,5,RIGHT);
+				drive(10,10,20,10,RIGHT);
 				
 				while(1);
 				break;
@@ -244,13 +244,13 @@ void Interrupt_Init(void)
 	VICIntSelect = VICIntSelect | 0x00000000; /* PWM configured as IRQ */
 }
 
-int drive(int a, int v_max, int dist, int dir){
+int drive(int a,int v_start, int v_max, int dist, int dir){
 	int start = step_counter;
 	turn(dir);
 	
+	PWM_Set(50000);
 	while( (step_counter - start) < dist ){
-		PWM_Set(2000000);
-		while( (step_counter - start) < dist ){}
+	
 	}
 	PWM1TCR = 0x02; // Reset and disable counter for PWM
 	return 0;
