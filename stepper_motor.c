@@ -36,7 +36,7 @@ void PWM_Set(int);
 void Interrupt_Init(void);
 void GPIO_Init(void);
 void GPIO_Set(void);
-int drive(int a,int v_start, int v_max, int dist, int dir);
+int drive(int a,int v_start, int v_soll, int dist, int dir);
 void turn(int);
 
 __irq void T0_IRQHandler (void);
@@ -57,8 +57,15 @@ __irq void PWM_ISR(void);
 		Wait
 	}SystemState;
 	
+	typedef enum{
+		Accelerate,
+		Drive,
+		Decelerate
+	}DriveState;
+		
+	
 int main(void){
-	SystemState state = Wait;
+	SystemState state = Drive_Fast;
 	
 	//Timer_Init();
 	GPIO_Init();
@@ -83,7 +90,7 @@ int main(void){
 				state = Drive_Fast;
 				break;
 			case Wait:
-				drive(10,10,20,10,RIGHT);
+				drive(10,10,20,10000,RIGHT);
 				
 				while(1);
 				break;
@@ -153,22 +160,25 @@ void Timer_Init(void){
 }
 
 __irq void T0_IRQHandler (void) {
-	if (x<200)
-		x++;
-	else
-		x=0;
+	//if (x<200)
+	//	x++;
+	//else
+	//	x=0;
 	//sinewave = 24000*sin(((double)x/100)*PI)+48000; /* erzeugt ein sinusförmiges Signal mit einem positiven Offset*/
 	//T0MR0 				= (int)sinewave;									/* Sinussignal wird in das Timer0 Register geschrieben */
-	toggle ^= true;
-	if (toggle){
-		FIO3SET3 = STEP; /* Step On */
-	} else {
-		FIO3CLR3 = STEP;	/* Step Off */
-	}
-	STEP_CNT++;
-	if(STEP_CNT%1000){
-		toggle_dir();
-	}
+	
+	//toggle ^= true;
+	//if (toggle){
+	//	FIO3SET3 = STEP; /* Step On */
+	//} else {
+	//	FIO3CLR3 = STEP;	/* Step Off */
+	//}
+	//STEP_CNT++;
+	//if(STEP_CNT%1000){
+	//	toggle_dir();
+	//}
+	
+	
   T0IR        = 1;                      /* Clear interrupt flag               */
   VICVectAddr = 0;                      /* Acknowledge Interrupt              */
 }
@@ -244,14 +254,38 @@ void Interrupt_Init(void)
 	VICIntSelect = VICIntSelect | 0x00000000; /* PWM configured as IRQ */
 }
 
-int drive(int a,int v_start, int v_max, int dist, int dir){
+int drive(int a, int v_start, int v_soll, int dist, int dir){
+	DriveState dstate = Accelerate;
+	
 	int start = step_counter;
+	int s_beschl = (pow(v_soll,2) - pow(v_start,2)) / (2 * a); /* Beschleunigungsweg */
+	int s_drive = dist - s_beschl;
+	
 	turn(dir);
 	
-	PWM_Set(50000);
-	while( (step_counter - start) < dist ){
-	
+	switch(dstate){
+		case Accelerate:
+			PWM_Set(v_start);
+			while(step_counter - start < s_beschl){
+				if(step_counter % a){
+					PWM_Set(v_start - a);
+				}
+			}
+			dstate = Drive;
+		case Drive:
+			while(step_counter - start < s_drive){
+				
+			}
+			dstate = Decelerate;			
+		case Decelerate:
+			
+		default: break;
 	}
+	
+	PWM_Set(20000); /* 2000000 ~1.25 s --> ~1.777 MHz*/
+	//while( (step_counter - start) < dist ){	}
+	
+	
 	PWM1TCR = 0x02; // Reset and disable counter for PWM
 	return 0;
 }
