@@ -7,6 +7,7 @@
  * webserver
  * *****************************************/
 
+
 /* How many steps does your motor make per round? */
 #define SPR		200		// steps per round of your motor
 
@@ -14,15 +15,15 @@
 #define OMEGA_ACCEL	10		// Motor Speed
 
 /* How many steps do you want to move? */
-#define DISTANCE 10
+#define DISTANCE 20
 
 /********************************************
  * make no changes beyond this line
  * ******************************************/
 #define			PI				3.1415926
 #define			FREQ			12000000	// timer frequency in Hz
-const double	ANGLE	=		2.0*PI/SPR;	// alpha in rad
-const double	OMEGA	=		2.0*PI/FREQ;	// omega in rad
+const double	ANGLE	=		(2.0*PI)/SPR;	// alpha in rad
+const double	OMEGA	=		(2.0*PI)/FREQ;	// omega in rad
 /********************************************
  *	functions
  * ******************************************/
@@ -84,7 +85,8 @@ int main()
 	double timerMatch = 0.0;
 	double previousDelay = 0.0;
 	stepcnt = 0;
-	printf("\tstep\t\tcycles\t\t\tvelocity\t\t\t/t\n");
+	printf("\tstep\t\tcycles\t\t\t\tvelocity\t time\n");
+
 	while(stepcnt < DISTANCE){
 		cycles = cntVal(previousDelay, stepcnt);
 		timerMatch = stepPulse(cycles);
