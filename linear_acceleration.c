@@ -23,7 +23,6 @@
 #define			FREQ			12000000	// timer frequency in Hz
 const double	ANGLE	=		2.0*PI/SPR;	// alpha in rad
 const double	OMEGA	=		2.0*PI/FREQ;	// omega in rad
-const double	T		=		1.0/FREQ;
 /********************************************
  *	functions
  * ******************************************/
@@ -31,7 +30,8 @@ const double	T		=		1.0/FREQ;
 /* Counter value
  *
  * We approximate the calculation of the counter value with
- * the taylor series in order to avoid calculating two square roots:
+ * B
+ *  the taylor series in order to avoid calculating two square roots:
  *
  *	c[0] = 1/t * sqrt(2*a/omega)
  *	c[n] = c[0] * (sqrt(n+1) - sqrt(n))
@@ -46,7 +46,7 @@ const double	T		=		1.0/FREQ;
  * error is by multiplying c[0] with 0.676.
  */
 double firstDelayC0(){
-	return (1.0/T * sqrt(2.0*ANGLE/OMEGA)) * 0.676;
+	return (FREQ * sqrt((2.0*ANGLE)/OMEGA)) * 0.676;
 }
 double cntVal(double cntValPrevious, int n){
 	return (cntValPrevious == 0.0) ? firstDelayC0() : cntValPrevious - (2.0*cntValPrevious)/(4.0*n+1);
@@ -65,29 +65,32 @@ double cntVal(double cntValPrevious, int n){
  * The delay dt programmed by the counter is:
  * 	dt = c*t = c/ft (s)
  */
-double stepPulse(double cntVal, int t){
-	return cntVal*t;
+double stepPulse(double cntVal){
+	return cntVal/FREQ;
 }
 
+double velocity(double cycles){
+	return ANGLE/(cycles/FREQ);
+}
 
 int main()
 {
-	printf("wat\t%f\n", 3.782937);
-	printf("PI :\t %f\n", PI);
 	printf("#define	ANGLE		2.0*PI/SPR ====> %f\n", ANGLE);
 	printf("#define OMEGA		2.0*PI/FREQ ===> %f\n", OMEGA);
-	printf("#define T		1.0/FREQ  =======> %f\n\n\n", T);
 
-	int c0;
 	int stepcnt;
-	int steps;
-	double timerdelay = 0.0;
+	double v = 0.0;
+	double cycles = 0.0;
+	double timerMatch = 0.0;
 	double previousDelay = 0.0;
 	stepcnt = 0;
+	printf("\tstep\t\tcycles\t\t\tvelocity\t\t\t/t\n");
 	while(stepcnt < DISTANCE){
-		timerdelay = cntVal(previousDelay, stepcnt);
-		printf("Timer Match Register [n %d]:\t%f\n", stepcnt, timerdelay);
-		previousDelay = timerdelay;
+		cycles = cntVal(previousDelay, stepcnt);
+		timerMatch = stepPulse(cycles);
+		v = velocity(cycles);
+		printf("\t%d\t\t%f\t\t%f\t%f\n", stepcnt, cycles, v, timerMatch);
+		previousDelay = cycles;
 		stepcnt++;
 	}
 
