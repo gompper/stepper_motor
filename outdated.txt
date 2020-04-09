@@ -1,0 +1,95 @@
+/* from main*/
+
+	// init State
+	SystemState state = Drive_Fast;
+	
+	/*
+	*	Motor Curve?
+	*/
+	while(1){
+		switch(state){
+			case Drive_Fast:
+				turn_left();
+				PWM_Set(20000);
+				while(step_counter > 1){
+				}
+				state = Drive_Slow;
+				break;
+			case Drive_Slow:
+				turn_right();
+				PWM_Set(200000);
+				while(step_counter <= 50){
+				}
+				state = Drive_Fast;
+				break;
+			case Wait:
+				drive(10,10,20,10000,RIGHT);
+				
+				while(1);
+				break;
+			default:
+				break;
+		}
+	}
+	
+	
+/*********************************************************************************/
+/* PWM */
+
+__irq void PWM_ISR(void)
+{	
+	if ( PWM1IR & 0x0001 )	/* If interrupt due to match channel 0 */
+	{
+		if (direction == RIGHT){
+			step_counter++;
+		}else if (direction == LEFT){
+			step_counter--;
+		}
+		PWM1IR = 0x0001;	/* Clear flag for PWM match channel 0 interrupt */
+	}	
+	VICVectAddr = 0x00000000;
+}
+
+/* Interrupt initialization */
+void Interrupt_Init(void)
+{
+	VICVectAddr8 = (unsigned) PWM_ISR; 	/* PWM ISR Address */
+	VICVectCntl8 = (VICVectCntl0 | 8); 	/* Enable PWM IRQ slot */
+	VICIntEnable = 1 << 8;							/* Enable PWM Interrupt */
+	VICIntSelect = VICIntSelect | 0x00000000; /* PWM configured as IRQ */
+}
+
+/************************************************************
+* Testprogramm 
+************************************************************/
+void TimerController()
+{
+
+	int stepcnt;
+	double v = 0.0;
+	double cycles = 0.0;
+	double timerMatch = 0.0;
+	double previousDelay = 0.0;
+	stepcnt = 0;
+
+	while(stepcnt < DISTANCE){
+		cycles = cntVal(previousDelay, stepcnt);
+		timerMatch = stepPulse(cycles);
+		v = velocity(cycles);
+		previousDelay = cycles;
+		stepcnt++;
+	}
+}
+
+
+
+/* Interrupt initialization for Timer 0 */
+void Interrupt_Init(void)
+{
+	VICVectAddr4 = (unsigned) T0_IRQHandler;	/* Register T0_IRQHandler */
+	VICVectCntl4 = (VICVectCntl0 | 4); 				/* Enable TM0 IRQ slot */
+//	VICVectCntl8 = (VICVectCntl0 | 5); 			/* Enable TM1 IRQ slot */
+	VICIntEnable = 1 << 4;										/* Enable TM0 Interrupt */
+//	VICIntEnable = 1 << 5;									/* Enable TM1 Interrupt */
+	VICIntSelect = VICIntSelect | 0x00000000; /* TODO: why? */
+}
