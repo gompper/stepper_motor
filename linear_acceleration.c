@@ -20,7 +20,7 @@
  * make no changes beyond this line
  * ******************************************/
 #define			PI				3.1415926
-#define			FREQ			12	// timer frequency in MHz
+#define			FREQ			12000000	// timer frequency in Hz
 const double	ANGLE	=		2.0*PI/SPR;	// alpha in rad
 const double	OMEGA	=		2.0*PI/FREQ;	// omega in rad
 const double	T		=		1.0/FREQ;
