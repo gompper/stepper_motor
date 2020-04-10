@@ -19,10 +19,12 @@
  * make no changes beyond this line
  * ******************************************/
 
-#define				PI				3.1415926
-#define				FREQ			12000000	// timer frequency in Hz
-const double	ANGLE	=		(2.0*PI)/SPR;	// alpha in rad
-const double	OMEGA	=		(2.0*PI)/FREQ;	// omega in rad
+#define		PI				3.1415926
+#define		FREQ			12000000				// timer frequency in Hz
+#define		ANGLE			(2.0*PI)/SPR		// alpha in rad
+#define		OMEGA			(2.0*PI)/FREQ		// omega in rad
+//extern const double	ANGLE	=		(2.0*PI)/SPR;	// alpha in rad
+//extern const double	OMEGA	=		(2.0*PI)/FREQ;	// omega in rad
 
 /********************************************
  *	functions
@@ -62,11 +64,5 @@ double cntVal(double cntValPrevious, int n);
  */
 int stepPulse(double cntVal);
 double velocity(double cycles);
-
-
-/*
-* Timer Controler 
-*/
-void TimerController(void);
 
 #endif
