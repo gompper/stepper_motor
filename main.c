@@ -48,8 +48,7 @@
 	double v = 0.0;
 	double cycles = 0.0;
 	double timerMatch = 0.0;
-	double previousDelay = 2570000.0;
-	int	cycles_int = 0;			
+	double previousDelay = 2570000.0;			
 
 	int stepcnt = 1;
 
@@ -85,7 +84,6 @@ int main (){
 	InitTimer1();
 //	InitTimer2();
 	
-	//stepcnt = 1;
 	
 	/* config motor */
 	MotorControlPinConfiguration();
@@ -103,18 +101,15 @@ int main (){
 /* ISR ROUTINES */
 
 void __irq T0ISR() {
+	T0TCR = 0x02; // Counter Reset
 	
-
 	VICVectAddr4 = (unsigned long)T0ISR;
 	VICVectPriority4 = 0;
 	VICIntEnable |= 1 << INT_TMR0;
  
 	cycles = cntVal(previousDelay, stepcnt);
-	cycles_int = (int)cycles;
-	//timerMatch = stepPulse(cycles);
 	previousDelay = cycles;
-
-	//T0MR0				= (int)cycles;		
+		
 	T0MR0 = (int)cycles;
 	T1MR0	= (int)cycles/2;
 	
@@ -123,17 +118,20 @@ void __irq T0ISR() {
 	
 	T0IR = 0x01;	/* Clear interrupt flag */
 	VICVectAddr = 0;	/* Acknowledge Interrupt */
+	
+	T0TCR = 0x01;	// enable Timer0;
+	T1TCR = 0x01; // enable Timer1;
 }
 
 void __irq T1ISR() {
-	
+	T1TCR = 0x02; // Counter Reset
 	
 	stepcnt++;
 	
 	FIO3CLR3 = STEP;			/* Step LOW */
 	FIO2CLR |= BIT1;
 
-	T1IR = 0x01;
+	T1IR = 0x01;	// delete interrupt flag
 	VICVectAddr = 0;
 }
  
@@ -151,9 +149,10 @@ void __irq T2ISR() {
 /* TIMER INITIALISATIONS */
 static void InitTimer0(void){
 	T0TCR = 0x02;
-	//T0MR0 = 0x100000;
 	T0MR0 = (int)previousDelay;
-	T0MCR = 0x03;
+	
+	T0MCR = 0x03; // interrupt on MR0; reset on MR0; 
+	//T0MCR = 0x07; // interrupt on MR0; reset on MR0; stop on MR0
 	
 	VICVectAddr4 = (unsigned long)T0ISR;
 	VICVectPriority4 = 0;
@@ -164,8 +163,10 @@ static void InitTimer0(void){
 
 static void InitTimer1(void){
 	T1TCR = 0x02;
-	//T1MR0 = 0x2000001;
-	T1MCR = 0x03;
+	T1MR0 = 0;
+	
+	T1MCR = 0x03; // interrupt on MR0; reset on MR0; 
+	//T1MCR = 0x7; // interrupt on MR0; reset on MR0; stop on MR0
 	
 	VICVectAddr5 = (unsigned long)T1ISR;
 	VICVectPriority4 = 1;
