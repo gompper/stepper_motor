@@ -164,7 +164,7 @@ __irq void T0_IRQHandler (void) {
 	//	x++;
 	//else
 	//	x=0;
-	//sinewave = 24000*sin(((double)x/100)*PI)+48000; /* erzeugt ein sinusförmiges Signal mit einem positiven Offset*/
+	//sinewave = 24000*sin(((double)x/100)*PI)+48000; /* erzeugt ein sinusfï¿½rmiges Signal mit einem positiven Offset*/
 	//T0MR0 				= (int)sinewave;									/* Sinussignal wird in das Timer0 Register geschrieben */
 	
 	//toggle ^= true;
