@@ -1,7 +1,6 @@
 #include <math.h>
 #include "linear_acceleration.h"
 
-
 /********************************************
  *	functions
  * ******************************************/
@@ -28,11 +27,10 @@
 	//return (FREQ * sqrt((2.0*ANGLE)/OMEGA)) * 0.676;
 	//return 0x272477;
 //}
-
-double cntVal(double cntValPrevious, int n){
-		return cntValPrevious - (2.0*cntValPrevious)/(4.0*n+1);
+/* acc = acceleration must be 1 (positive) or -1 (negative) */
+double cntVal(double cntValPrevious, int n, int acc){
+	return cntValPrevious - acc*((2.0*cntValPrevious)/(4.0*n+1));
 }
-
 
 /* Step Pulse
  * ^           ^           ^
