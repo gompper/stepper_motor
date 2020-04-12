@@ -10,21 +10,17 @@
 #define SPR		200		// steps per round of your motor
 
 /* What speed do you want to drive the motor with? */
-#define OMEGA_ACCEL	10		// Motor Speed
+#define OMEGA_ACCEL	10.0		// Motor Speed
 
-/* How many steps do you want to move? */
-#define DISTANCE 20
-
-/********************************************
- * make no changes beyond this line
- * ******************************************/
+/********************************************/
 
 #define		PI				3.1415926
 #define		FREQ			12000000				// timer frequency in Hz
-#define		ANGLE			(2.0*PI)/SPR		// alpha in rad
-#define		OMEGA			(2.0*PI)/FREQ		// omega in rad
-//extern const double	ANGLE	=		(2.0*PI)/SPR;	// alpha in rad
-//extern const double	OMEGA	=		(2.0*PI)/FREQ;	// omega in rad
+#define		ANGLE			2.0*PI/SPR			// alpha in rad
+#define		OMEGA_R		2.0*PI/OMEGA_ACCEL		// BUG. Somehow gives wrong result.
+#define		OMEGA			0.6283185307		// omega in rad
+
+#define FIRSTDELAY (int)((FREQ * sqrt(2.0*ANGLE/OMEGA)) * 0.676)
 
 /********************************************
  *	functions

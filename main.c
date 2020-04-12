@@ -1,7 +1,27 @@
+/***********************************************************************************
+* ARM Programmierung WiSe 19/20 
+* Project Stepper Motor
+* 
+* Date					version			User			comment
+************************************************************************************
+* 10-04-20				2.0				Urs				Merge and fixed Timers
+************************************************************************************
+* 12-04-20 				2.1				Gina			Insert header to keep track of latest main 	
+************************************************************************************
+*
+*****************************/
 #include <stdio.h>
+#include <math.h>
 #include <LPC23xx.h>                    /* LPC23xx definitions                */
-//#include "../../src/linear_acceleration.h"
 #include "linear_acceleration.h"
+
+/***********************************
+* USER INPUT
+************************************/
+
+/* How many steps do you want to move? */
+#define DISTANCE 200
+
 
 /***********************************
 * PINS
@@ -48,9 +68,8 @@
 	double v = 0.0;
 	double cycles = 0.0;
 	double timerMatch = 0.0;
-	double previousDelay = 2570000.0;			
-
-	int stepcnt = 1;
+	
+	int stepcnt = 0;
 
 /***********************************
 * FUNCTION DECLARATION
@@ -70,7 +89,7 @@ void MotorControlPinConfiguration(void);
  /***********************************
 * MAIN
 ************************************/
-int main (){
+int main (){		
 
 	/* set leds */
 	/* function 0, clear last 16 bit*/
@@ -89,7 +108,10 @@ int main (){
 	MotorControlPinConfiguration();
 	
 	while(1){
-		// do nothing
+			if(stepcnt == DISTANCE){		
+				T0TCR = 0x00; 					/* stop timer 0 */
+				T1TCR = 0x00; 					/* stop timer 1 */
+			}
 	}
 }
 
@@ -107,8 +129,8 @@ void __irq T0ISR() {
 	VICVectPriority4 = 0;
 	VICIntEnable |= 1 << INT_TMR0;
  
-	cycles = cntVal(previousDelay, stepcnt);
-	previousDelay = cycles;
+//	cycles = cntVal(previousDelay, stepcnt);
+	cycles = cntVal(T0MR0, stepcnt);
 		
 	T0MR0 = (int)cycles;
 	T1MR0	= (int)cycles/2;
@@ -127,6 +149,7 @@ void __irq T1ISR() {
 	T1TCR = 0x02; // Counter Reset
 	
 	stepcnt++;
+	T1MR1 = T1MR1 + 1;
 	
 	FIO3CLR3 = STEP;			/* Step LOW */
 	FIO2CLR |= BIT1;
@@ -134,22 +157,23 @@ void __irq T1ISR() {
 	T1IR = 0x01;	// delete interrupt flag
 	VICVectAddr = 0;
 }
- 
+
+/* Polling IRQ */
 void __irq T2ISR() {
 	T2IR = 0x01;
-	
-	T0TCR = 0x00; 					/* stop timer 0 */
-	T1TCR = 0x00; 					/* stop timer 1 */
-	FIO3SET2 	|= ENABLE;		/* Diable Motor (Enable low Active) */
-	FIO2SET		|= BIT3;
-	
+	if(stepcnt == DISTANCE){
+		T0TCR = 0x00; 					/* stop timer 0 */
+		T1TCR = 0x00; 					/* stop timer 1 */
+		FIO3SET2 	|= ENABLE;		/* Diable Motor (Enable low Active) */
+		FIO2SET		|= BIT3;
+	}
 	VICVectAddr = 0;
 }
 
 /* TIMER INITIALISATIONS */
 static void InitTimer0(void){
 	T0TCR = 0x02;
-	T0MR0 = (int)previousDelay;
+	T0MR0 = FIRSTDELAY;
 	
 	T0MCR = 0x03; // interrupt on MR0; reset on MR0; 
 	//T0MCR = 0x07; // interrupt on MR0; reset on MR0; stop on MR0
@@ -163,7 +187,7 @@ static void InitTimer0(void){
 
 static void InitTimer1(void){
 	T1TCR = 0x02;
-	T1MR0 = 0;
+	T1MR0 = T0MR0/2;
 	
 	T1MCR = 0x03; // interrupt on MR0; reset on MR0; 
 	//T1MCR = 0x7; // interrupt on MR0; reset on MR0; stop on MR0
@@ -178,8 +202,8 @@ static void InitTimer1(void){
 static void InitTimer2(void){
 	PCONP |= 0x1 << 22;			/* power timer 2 */
 
-	T2TCR = 0x02;
-	T2MR0 = 0x100000;
+	T2TCR = 0;
+	T2MR0 = 0x100;
 	T2MCR = 0x03;
 	
 	VICVectAddr26 = (unsigned long)T2ISR;
@@ -192,7 +216,6 @@ static void InitTimer2(void){
 /* MOTOR CONFIGURATIONS */
 
 void MotorControlPinConfiguration(void){
-	//printf("Gpio init ...\n"); /* debug mode - view - serial windows - Debug (printf) viewer*/
 	/* Pin Function */
 	/* 00 = GPIO */
 		PINSEL3 &= 0x00000000;		// P1.16..31	

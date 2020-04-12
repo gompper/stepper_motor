@@ -24,11 +24,13 @@
  * introduces an error of 0.44 at n = 1. A way to compensate for this 
  * error is by multiplying c[0] with 0.676.
  */
-double firstDelayC0(){
-	return (FREQ * sqrt((2.0*ANGLE)/OMEGA)) * 0.676;
-}
+//double firstDelayC0(){
+	//return (FREQ * sqrt((2.0*ANGLE)/OMEGA)) * 0.676;
+	//return 0x272477;
+//}
+
 double cntVal(double cntValPrevious, int n){
-	return (cntValPrevious == 0.0) ? firstDelayC0() : cntValPrevious - (2.0*cntValPrevious)/(4.0*n+1);
+		return cntValPrevious - (2.0*cntValPrevious)/(4.0*n+1);
 }
 
 
