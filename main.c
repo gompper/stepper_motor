@@ -1,7 +1,27 @@
+/***********************************************************************************
+* ARM Programmierung WiSe 19/20 
+* Project Stepper Motor
+* 
+* Date					version			User			comment
+************************************************************************************
+* 10-04-20				2.0				Urs				Merge and fixed Timers
+************************************************************************************
+* 12-04-20 				2.1				Gina			Insert header to keep track of latest main 	
+************************************************************************************
+*
+*****************************/
 #include <stdio.h>
+#include <math.h>
 #include <LPC23xx.h>                    /* LPC23xx definitions                */
-//#include "../../src/linear_acceleration.h"
 #include "linear_acceleration.h"
+
+/***********************************
+* USER INPUT
+************************************/
+
+/* How many steps do you want to move? */
+#define DISTANCE 200
+
 
 /***********************************
 * PINS
@@ -24,6 +44,7 @@
 #define INT_TMR0	04
 #define INT_TMR1	05
 #define INT_TMR2	26
+#define INT_TMR3	27
  
  /***********************************
 * Helpers
@@ -45,12 +66,14 @@
 ************************************/
 
 /* Global Variables for linear acceleration */
-	double v = 0.0;
-	double cycles = 0.0;
-	double timerMatch = 0.0;
-	double previousDelay = 2570000.0;			
-
-	int stepcnt = 1;
+	static double cycles = 0.0;
+	
+	static int stepcnt = 0;
+	static int acc = 1;
+	static double peakCycles, breakCycles, total;
+	int breakSteps;
+	long totalaccCycles = 2565239; 	//first delay
+	int accSteps = 1;					/* how many steps we need/have for acceleration and breaking */
 
 /***********************************
 * FUNCTION DECLARATION
@@ -59,10 +82,12 @@
 void __irq T0ISR(void);
 void __irq T1ISR(void);
 void __irq T2ISR(void);
+void __irq T3ISR(void);
 
 static void InitTimer0(void);
 static void InitTimer1(void);
 static void InitTimer2(void);
+static void InitTimer3(void);
 
 void MotorControlPinConfiguration(void);
 
@@ -70,7 +95,7 @@ void MotorControlPinConfiguration(void);
  /***********************************
 * MAIN
 ************************************/
-int main (){
+int main (){		
 
 	/* set leds */
 	/* function 0, clear last 16 bit*/
@@ -79,18 +104,50 @@ int main (){
 	FIO2DIR  = 0x000000FF;                /* P2.0..7 defined as Outputs         */
   FIO2MASK = 0x00000000;
 	
+	double noChange = 0;			/* amount of steps we drivein max speed */
+
+	peakCycles 	= 2565239;		//first delay
+	
+	/* calculate max speed for desired distance */
+	while(accSteps < (DISTANCE/2)){	/* after half the way we need to start slowing down again */
+		peakCycles = cntVal(peakCycles, accSteps, acc);
+		if (peakCycles <= MAX_SPEED){	/* we are not half way but reached maximum speed */
+			peakCycles = MAX_SPEED;															
+			break;
+		}
+		accSteps++;
+		totalaccCycles += peakCycles;
+	}
+
+	/* how long do we have constant speed? */
+	if (peakCycles == MAX_SPEED){
+		noChange = DISTANCE - 2 * accSteps;							/* steps we spend in constant (max) speed */
+		breakCycles = (noChange + totalaccCycles);		  /* at this time we need to slow down */
+	} else {
+		breakCycles = totalaccCycles;
+	}
+	total = totalaccCycles + breakCycles;			/* total cycles from beginning to end */
+	breakSteps = DISTANCE-accSteps;
+	
 	/* config timer */
 	InitTimer0();
 	InitTimer1();
-//	InitTimer2();
-	
+	InitTimer2();
+//	InitTimer3();
 	
 	/* config motor */
 	MotorControlPinConfiguration();
-	
+
 	while(1){
-		// do nothing
+		if(stepcnt >= accSteps){
+			acc = 0;
+		} else if (stepcnt >= breakSteps){
+			acc = -1;
+		} else {
+			acc = 1;
+		}
 	}
+		
 }
 
 
@@ -103,12 +160,10 @@ int main (){
 void __irq T0ISR() {
 	T0TCR = 0x02; // Counter Reset
 	
-	VICVectAddr4 = (unsigned long)T0ISR;
-	VICVectPriority4 = 0;
-	VICIntEnable |= 1 << INT_TMR0;
- 
-	cycles = cntVal(previousDelay, stepcnt);
-	previousDelay = cycles;
+//	VICVectAddr4 = (unsigned long)T0ISR;
+//	VICVectPriority4 = 0;
+//	VICIntEnable |= 1 << INT_TMR0;
+	cycles = cntVal(T0MR0, stepcnt, acc);
 		
 	T0MR0 = (int)cycles;
 	T1MR0	= (int)cycles/2;
@@ -116,7 +171,7 @@ void __irq T0ISR() {
 	FIO3SET3 = STEP; 			/* Step HIGH */
 	FIO2SET |= BIT1;
 	
-	T0IR = 0x01;	/* Clear interrupt flag */
+	T0IR = 0x01;			/* Clear interrupt flag */
 	VICVectAddr = 0;	/* Acknowledge Interrupt */
 	
 	T0TCR = 0x01;	// enable Timer0;
@@ -126,30 +181,44 @@ void __irq T0ISR() {
 void __irq T1ISR() {
 	T1TCR = 0x02; // Counter Reset
 	
-	stepcnt++;
-	
+ 	if (acc ==  1 || acc == 0) { stepcnt++; }
+	if (acc == -1) { stepcnt --;}
+
 	FIO3CLR3 = STEP;			/* Step LOW */
 	FIO2CLR |= BIT1;
 
-	T1IR = 0x01;	// delete interrupt flag
-	VICVectAddr = 0;
+	T1IR = 0x01;			/* Clear interrupt flag */
+	VICVectAddr = 0;	/* Acknowledge Interrupt */
 }
- 
+
+/* reached destination, drive back */
 void __irq T2ISR() {
+	T2TCR = 0x02; // Counter Reset
+
+	stepcnt = 1;
+	cycles = 0.0;
+
+	T0MR0 = FIRSTDELAY;
+	T1MR0 = T0MR0/2;
+	T2MR0 = total;
+	
+	T2MCR = 0x03;
 	T2IR = 0x01;
-	
-	T0TCR = 0x00; 					/* stop timer 0 */
-	T1TCR = 0x00; 					/* stop timer 1 */
-	FIO3SET2 	|= ENABLE;		/* Diable Motor (Enable low Active) */
-	FIO2SET		|= BIT3;
-	
 	VICVectAddr = 0;
 }
 
+void __irq T3ISR() {
+	T3TCR = 0x02; // Counter Reset	
+
+	T3IR = 0x01;
+	VICVectAddr = 0;
+	T3TCR = 0x01; 
+
+}
 /* TIMER INITIALISATIONS */
 static void InitTimer0(void){
 	T0TCR = 0x02;
-	T0MR0 = (int)previousDelay;
+	T0MR0 = FIRSTDELAY;
 	
 	T0MCR = 0x03; // interrupt on MR0; reset on MR0; 
 	//T0MCR = 0x07; // interrupt on MR0; reset on MR0; stop on MR0
@@ -163,7 +232,7 @@ static void InitTimer0(void){
 
 static void InitTimer1(void){
 	T1TCR = 0x02;
-	T1MR0 = 0;
+	T1MR0 = T0MR0/2;
 	
 	T1MCR = 0x03; // interrupt on MR0; reset on MR0; 
 	//T1MCR = 0x7; // interrupt on MR0; reset on MR0; stop on MR0
@@ -178,8 +247,9 @@ static void InitTimer1(void){
 static void InitTimer2(void){
 	PCONP |= 0x1 << 22;			/* power timer 2 */
 
-	T2TCR = 0x02;
-	T2MR0 = 0x100000;
+	T2TCR = 0;
+	T2MR0 = total;
+	
 	T2MCR = 0x03;
 	
 	VICVectAddr26 = (unsigned long)T2ISR;
@@ -189,10 +259,24 @@ static void InitTimer2(void){
 	T2TCR = 0x01;
 }
 
+
+static void InitTimer3(void){
+	PCONP |= 0x1 << 23;			/* power timer 3 */
+
+	T3TCR = 0;
+//	T3MR0 = breakCycles;
+	
+	T3MCR = 0x03;
+	
+	VICVectAddr27 = (unsigned long)T3ISR;
+	VICVectPriority5 = 0;
+	VICIntEnable |= 1 << INT_TMR3;
+ 
+	T3TCR = 0x01;
+}
 /* MOTOR CONFIGURATIONS */
 
 void MotorControlPinConfiguration(void){
-	//printf("Gpio init ...\n"); /* debug mode - view - serial windows - Debug (printf) viewer*/
 	/* Pin Function */
 	/* 00 = GPIO */
 		PINSEL3 &= 0x00000000;		// P1.16..31	
