@@ -22,7 +22,7 @@
 /* How many steps do you want to move? */
 #define DISTANCE 200	// [steps]
 #define ACCELERATION		// [steps/s^2]
-#define MAXSPEED
+#define MAXSPEED 270000.0
 #define DIRECTION	1	//1 = RIGHT, 0 = LEFT
 
 
@@ -38,7 +38,7 @@
 #define MS1 BIT2	// P4.2
 #define MS2 BIT1	// P4.1
 #define MS3 BIT0	// P4.0
-#define DIR	BIT4    // P4.4
+#define DIR	BIT4	// P4.4
 
 /***********************************
 * Timer
@@ -72,7 +72,11 @@
 	static double cycles = 0.0;
 	
 	static int stepcnt = 0;			// Beschleungigungsschritt
-	static int stepcnt_tot = 0;	// Distanz die zurückgelegt wurde
+	static int stepcnt_tot = 0;	// Relative Position zum letzten Wendepunkt
+	static int position = 0;		// Absolute Position
+	
+	static int vmax_reached = 0;	// Relative Position bei der die maximale Geschw. erreicht wurde.
+	
 	static int acc = 1;
 	static double peakCycles, breakCycles, total;
 	int breakSteps;
@@ -149,11 +153,25 @@ int main (){
 
 	while(1){
 		if(stepcnt_tot < (DISTANCE/2)){
-			acc = 1;
+			if (cycles < MAXSPEED && cycles != 0){
+				acc = 0;
+			}
+			else{
+				acc = 1;
+			}
 		}else if(stepcnt_tot < DISTANCE){
-			acc = -1;
+			if(acc == 1){
+				acc = -1;
+			}else{
+				if(DISTANCE - stepcnt_tot < vmax_reached){
+					acc = -1;
+				}else{
+					acc = 0;
+				}
+			}
 		}else if(stepcnt_tot == DISTANCE){
 			toggle_dir();
+			vmax_reached = 0;
 		}
 		
 //		if(stepcnt >= accSteps){
@@ -187,12 +205,17 @@ void __irq T0ISR() {
 		stepcnt_tot = 0;
 	}
 	
-	if (acc ==  1 || acc == 0) { stepcnt++; }
+	if (acc == 1) { stepcnt++; }
 	if (acc == -1 && stepcnt != 0) { stepcnt --;}
+	if (acc == 0 && vmax_reached == 0) {vmax_reached = stepcnt_tot;}
 	
-	cycles = cntVal(T0MR0, stepcnt, acc);
+	if ((FIO4PIN0 & DIR) > 0){position++;} else {position--;} // Aktuelle Richtung auslesen und Position updaten
+	
+	
+	
+	cycles = cntVal(T0MR0, stepcnt, acc);	// Neues Delay berechnen
 		
-	cycles = (stepcnt==0)?FIRSTDELAY:cycles;
+	cycles = (stepcnt==0)?FIRSTDELAY:cycles; // Erstes Delay ist fix
 	
 	T0MR0 = (int)cycles;
 	T1MR0	= (int)cycles/2;
