@@ -6,24 +6,34 @@
  * TODO: Replace defines with user input via
  * webserver
  * *****************************************/
+ 
+/***********************************
+* USER INPUT
+************************************/
+
+/* How many steps do you want to move? */
+#define DISTANCE	200	// [steps]
+
+/* What is the desired maximum speed? */
+#define MAXSPEED	60 // [steps/s]
+
+/* Turn right or left? */
+#define DIRECTION	1	// 1 = RIGHT, 0 = LEFT
+ 
 /* How many steps does your motor make per round? */
-#define SPR		200		// steps per round of your motor
+#define SPR	200		// steps per round of your motor
 
 /* What acceleration do you want to drive the motor with? */
 #define OMEGA_ACCEL	20.0		// Motor Acceleration in steps/s^2
 
 /********************************************/
 
-#define		PI				3.1415926
-#define		FREQ			12000000						// timer frequency in Hz
-#define		ANGLE			2.0*PI/SPR					// alpha in rad
-//#define		OMEGA			1.256637061				// omega in rad/s^2
-//#define		OMEGA			0.6283185307				// omega in rad/s^2
-#define		OMEGA			ANGLE*OMEGA_ACCEL	// omega in rad/s^2
-
-#define 	FIRSTDELAY (int)((FREQ * sqrt(2.0*ANGLE/(OMEGA))) * 0.676)
-
-#define		MAX_SPEED		134274	//0x00020C82		// shortest delay = max speed reached
+#define	PI				3.1415926
+#define	FREQ			12000000						// timer frequency in Hz
+#define	ANGLE			2.0*PI/SPR					// alpha in rad
+#define	OMEGA			ANGLE*OMEGA_ACCEL	// omega in rad/s^2
+#define MAXSPEED_DELAY FREQ*ANGLE*200/(2*PI*MAXSPEED)
+#define	FIRSTDELAY (int)((FREQ * sqrt(2.0*ANGLE/(OMEGA))) * 0.676)
 
 /********************************************
  *	functions

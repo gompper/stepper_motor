@@ -15,15 +15,6 @@
 #include <LPC23xx.h>                    /* LPC23xx definitions                */
 #include "linear_acceleration.h"
 
-/***********************************
-* USER INPUT
-************************************/
-
-/* How many steps do you want to move? */
-#define DISTANCE 200	// [steps]
-#define ACCELERATION		// [steps/s^2]
-#define MAXSPEED 260000.0
-#define DIRECTION	1	//1 = RIGHT, 0 = LEFT
 
 
 /***********************************
@@ -35,9 +26,12 @@
 #define SLEEP 	BIT1	// P3.25
 #define STEP 		BIT2 	// P3.26	
 
+/* Microstep selection */
 #define MS1 BIT2	// P4.2
 #define MS2 BIT1	// P4.1
 #define MS3 BIT0	// P4.0
+
+/* Direction */
 #define DIR	BIT4	// P4.4
 
 /***********************************
@@ -153,7 +147,7 @@ int main (){
 
 	while(1){
 		if(stepcnt_tot < (DISTANCE/2)){
-			if (cycles < MAXSPEED && cycles != 0){
+			if (cycles < MAXSPEED_DELAY && cycles != 0){
 				acc = 0;
 			}
 			else{
@@ -235,8 +229,6 @@ void __irq T0ISR() {
 void __irq T1ISR() {
 	T1TCR = 0x02; // Counter Reset
 	
-
-
 	FIO3CLR3 = STEP;			/* Step LOW */
 	FIO2CLR |= BIT1;
 
