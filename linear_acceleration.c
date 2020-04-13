@@ -23,10 +23,10 @@
  * introduces an error of 0.44 at n = 1. A way to compensate for this 
  * error is by multiplying c[0] with 0.676.
  */
-//double firstDelayC0(){
-	//return (FREQ * sqrt((2.0*ANGLE)/OMEGA)) * 0.676;
+double firstDelayC0(){
+	return (FREQ * sqrt((2.0*ANGLE)/OMEGA)) * 0.676;
 	//return 0x272477;
-//}
+}
 /* acc = acceleration must be 1 (positive) or -1 (negative) */
 double cntVal(double cntValPrevious, int n, int acc){
 	return cntValPrevious - acc*((2.0*cntValPrevious)/(4.0*n+1));
@@ -48,6 +48,10 @@ int stepPulse(double cntVal){
 	return (int)cntVal/FREQ;
 }
 
-double velocity(double cycles){
+/* Circular Speed 
+ * 
+ * Calculates the current circular speed in rad/s 
+ */
+double circSpeed(double cycles){
 	return ANGLE/(cycles/FREQ);
 }

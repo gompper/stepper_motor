@@ -17,8 +17,9 @@
 #define		PI				3.1415926
 #define		FREQ			12000000						// timer frequency in Hz
 #define		ANGLE			2.0*PI/SPR					// alpha in rad
-#define		OMEGA			1.256637061				// omega in rad
-//#define		OMEGA			2.0*PI/OMEGA_ACCEL	// omega in rad
+//#define		OMEGA			1.256637061				// omega in rad/s^2
+#define		OMEGA			0.6283185307				// omega in rad/s^2
+//#define		OMEGA			2.0*PI/OMEGA_ACCEL	// omega in rad/s^2
 
 #define 	FIRSTDELAY (int)((FREQ * sqrt(2.0*ANGLE/(OMEGA))) * 0.676)
 
@@ -61,6 +62,6 @@ double cntVal(double cntValPrevious, int n, int acc);
  * 	dt = c*t = c/ft (s)
  */
 int stepPulse(double cntVal);
-double velocity(double cycles);
+double circSpeed(double cycles);
 
 #endif

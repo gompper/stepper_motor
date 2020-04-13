@@ -68,7 +68,8 @@
 /* Global Variables for linear acceleration */
 	static double cycles = 0.0;
 	
-	static int stepcnt = 0;
+	static int stepcnt = 0;			// Beschleungigungsschritt
+	static int stepcnt_tot = 0;	// Distanz die zurückgelegt wurde
 	static int acc = 1;
 	static double peakCycles, breakCycles, total;
 	int breakSteps;
@@ -104,48 +105,54 @@ int main (){
 	FIO2DIR  = 0x000000FF;                /* P2.0..7 defined as Outputs         */
   FIO2MASK = 0x00000000;
 	
-	double noChange = 0;			/* amount of steps we drivein max speed */
+//	double noChange = 0;			/* amount of steps we drive in max speed */
 
-	peakCycles 	= 2565239;		//first delay
+//	peakCycles 	= 2565239;		//first delay
 	
 	/* calculate max speed for desired distance */
-	while(accSteps < (DISTANCE/2)){	/* after half the way we need to start slowing down again */
-		peakCycles = cntVal(peakCycles, accSteps, acc);
-		if (peakCycles <= MAX_SPEED){	/* we are not half way but reached maximum speed */
-			peakCycles = MAX_SPEED;															
-			break;
-		}
-		accSteps++;
-		totalaccCycles += peakCycles;
-	}
+//	while(accSteps < (DISTANCE/2)){	/* after half the way we need to start slowing down again */
+//		peakCycles = cntVal(peakCycles, accSteps, acc);
+//		if (peakCycles <= MAX_SPEED){	/* we are not half way but reached maximum speed */
+//			peakCycles = MAX_SPEED;															
+//			break;
+//		}
+//		accSteps++;
+//		totalaccCycles += peakCycles;
+//	}
 
-	/* how long do we have constant speed? */
-	if (peakCycles == MAX_SPEED){
-		noChange = DISTANCE - 2 * accSteps;							/* steps we spend in constant (max) speed */
-		breakCycles = (noChange + totalaccCycles);		  /* at this time we need to slow down */
-	} else {
-		breakCycles = totalaccCycles;
-	}
-	total = totalaccCycles + breakCycles;			/* total cycles from beginning to end */
-	breakSteps = DISTANCE-accSteps;
+//	/* how long do we have constant speed? */
+//	if (peakCycles == MAX_SPEED){
+//		noChange = DISTANCE - 2 * accSteps;							/* steps we spend in constant (max) speed */
+//		breakCycles = (noChange + totalaccCycles);		  /* at this time we need to slow down */
+//	} else {
+//		breakCycles = totalaccCycles;
+//	}
+//	total = totalaccCycles + breakCycles;			/* total cycles from beginning to end */
+//	breakSteps = DISTANCE-accSteps;
 	
 	/* config timer */
 	InitTimer0();
 	InitTimer1();
-	InitTimer2();
+//	InitTimer2();
 //	InitTimer3();
 	
 	/* config motor */
 	MotorControlPinConfiguration();
 
 	while(1){
-		if(stepcnt >= accSteps){
-			acc = 0;
-		} else if (stepcnt >= breakSteps){
-			acc = -1;
-		} else {
+		if(stepcnt_tot < (DISTANCE/2)){
 			acc = 1;
+		}else if(stepcnt_tot < DISTANCE){
+			acc = -1;
 		}
+		
+//		if(stepcnt >= accSteps){
+//			acc = 0;
+//		} else if (stepcnt >= breakSteps){
+//			acc = -1;
+//		} else {
+//			acc = 1;
+//		}
 	}
 		
 }
@@ -163,8 +170,20 @@ void __irq T0ISR() {
 //	VICVectAddr4 = (unsigned long)T0ISR;
 //	VICVectPriority4 = 0;
 //	VICIntEnable |= 1 << INT_TMR0;
+	
+	if(stepcnt_tot < DISTANCE){
+		stepcnt_tot++;
+	}else{
+		stepcnt_tot = 0;
+	}
+	
+	if (acc ==  1 || acc == 0) { stepcnt++; }
+	if (acc == -1 && stepcnt != 0) { stepcnt --;}
+	
 	cycles = cntVal(T0MR0, stepcnt, acc);
 		
+	cycles = (stepcnt==0)?FIRSTDELAY:cycles;
+	
 	T0MR0 = (int)cycles;
 	T1MR0	= (int)cycles/2;
 	
@@ -181,8 +200,7 @@ void __irq T0ISR() {
 void __irq T1ISR() {
 	T1TCR = 0x02; // Counter Reset
 	
- 	if (acc ==  1 || acc == 0) { stepcnt++; }
-	if (acc == -1) { stepcnt --;}
+
 
 	FIO3CLR3 = STEP;			/* Step LOW */
 	FIO2CLR |= BIT1;
@@ -274,8 +292,8 @@ static void InitTimer3(void){
  
 	T3TCR = 0x01;
 }
-/* MOTOR CONFIGURATIONS */
 
+/* MOTOR CONFIGURATIONS */
 void MotorControlPinConfiguration(void){
 	/* Pin Function */
 	/* 00 = GPIO */
