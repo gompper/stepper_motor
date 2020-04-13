@@ -38,8 +38,6 @@
 
 #define INT_TMR0	04
 #define INT_TMR1	05
-#define INT_TMR2	26
-#define INT_TMR3	27
  
  /***********************************
 * Helpers
@@ -82,13 +80,9 @@
 
 void __irq T0ISR(void);
 void __irq T1ISR(void);
-void __irq T2ISR(void);
-void __irq T3ISR(void);
 
 static void InitTimer0(void);
 static void InitTimer1(void);
-static void InitTimer2(void);
-static void InitTimer3(void);
 
 void MotorControlPinConfiguration(void);
 
@@ -118,25 +112,25 @@ int main (){
 	MotorControlPinConfiguration();
 
 	while(1){
-		if(stepcnt_tot < (DISTANCE/2)){
-			if (cycles < MAXSPEED_DELAY && cycles != 0){
-				acc = 0;
+		if(stepcnt_tot < (DISTANCE/2)){	// 1. Hälfte der Strecke
+			if (cycles < MAXSPEED_DELAY && cycles != 0){	// Abfrage ob die max. Geschw. erreicht wurde
+				acc = 0;	// Wurde die max. Geschw. erreicht wird mit konstanter Geschw. weitergefahren
 			}
 			else{
-				acc = 1;
+				acc = 1;	// Beschleunigen bis max. Geschw. oder 2. Hälfte der Strecke erreicht
 			}
-		}else if(stepcnt_tot < DISTANCE){
-			if(acc == 1){
-				acc = -1;
+		}else if(stepcnt_tot < DISTANCE){	// 2. Hälfte der Strecke
+			if(acc == 1){ // Abfrage ob noch beschleunigt wird
+				acc = -1;	// Negative Beschleunigung bis zum Stillstand
 			}else{
-				if(DISTANCE - stepcnt_tot < vmax_reached){
-					acc = -1;
+				if(DISTANCE - stepcnt_tot < vmax_reached){ // Abfrage ob schon abgebremst werden muss
+					acc = -1; // Negative Beschleunigung bis zum Stillstand
 				}else{
-					acc = 0;
+					acc = 0;	// Weiterfahren mit konstanter Geschw.
 				}
 			}
-		}else if(stepcnt_tot == DISTANCE){
-			vmax_reached = 0;
+		}else if(stepcnt_tot == DISTANCE){ // Abfrage ob das Ziel erreicht wurde
+			vmax_reached = 0;	
 		}
 	}	
 }
@@ -157,9 +151,12 @@ void __irq T0ISR() {
 		stepcnt_tot = 1;
 	}
 	
+	/* Beschleunigungsschritt updaten */
 	if (acc == 1) { stepcnt++; }
 	if (acc == -1 && stepcnt != 0) { stepcnt --;}
-	if (acc == 0 && vmax_reached == 0) {vmax_reached = stepcnt_tot;}
+	
+	/* Relative Position speichern, falls maximale Geschwindigkeit erreicht wurde. */
+	if (acc == 0 && vmax_reached == 0) {vmax_reached = stepcnt_tot;} 
 	
 	if ((FIO4PIN0 & DIR) > 0){position++;} else {position--;} // Aktuelle Richtung auslesen und Position updaten
 	
@@ -167,12 +164,15 @@ void __irq T0ISR() {
 		
 	cycles = (stepcnt==0)?FIRSTDELAY:cycles; // Erstes Delay ist fix
 	
+	/* Timer Match Register updaten */
 	T0MR0 = (int)cycles;
 	T1MR0	= (int)cycles/2;
 	
+	/* Einen Schritt gehen */
 	FIO3SET3 = STEP; 			/* Step HIGH */
 	FIO2SET |= BIT1;
 	
+	/* Richtung umkehren bei erreichen des Ziels */
 	if(stepcnt_tot == DISTANCE) toggle_dir();
 	
 	T0IR = 0x01;			/* Clear interrupt flag */
@@ -192,30 +192,6 @@ void __irq T1ISR() {
 	VICVectAddr = 0;	/* Acknowledge Interrupt */
 }
 
-/* reached destination, drive back */
-void __irq T2ISR() {
-	T2TCR = 0x02; // Counter Reset
-
-	stepcnt = 1;
-	cycles = 0.0;
-
-	T0MR0 = FIRSTDELAY;
-	T1MR0 = T0MR0/2;
-	T2MR0 = total;
-	
-	T2MCR = 0x03;
-	T2IR = 0x01;
-	VICVectAddr = 0;
-}
-
-void __irq T3ISR() {
-	T3TCR = 0x02; // Counter Reset	
-
-	T3IR = 0x01;
-	VICVectAddr = 0;
-	T3TCR = 0x01; 
-
-}
 /* TIMER INITIALIZATIONS */
 static void InitTimer0(void){
 	T0TCR = 0x02;
@@ -241,21 +217,6 @@ static void InitTimer1(void){
 	VICIntEnable |= 1 << INT_TMR1;
  
 	T1TCR = 0x01;
-}
-
-static void InitTimer2(void){
-	PCONP |= 0x1 << 22;			/* power timer 2 */
-
-	T2TCR = 0;
-	T2MR0 = total;
-	
-	T2MCR = 0x03;
-	
-	VICVectAddr26 = (unsigned long)T2ISR;
-	VICVectPriority4 = 0;
-	VICIntEnable |= 1 << INT_TMR2;
- 
-	T2TCR = 0x01;
 }
 
 /* MOTOR CONFIGURATIONS */
