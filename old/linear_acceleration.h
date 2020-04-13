@@ -6,35 +6,25 @@
  * TODO: Replace defines with user input via
  * webserver
  * *****************************************/
- 
-/***********************************
-* USER INPUT
-************************************/
+/* How many steps does your motor make per round? */
+#define SPR		200		// steps per round of your motor
+
+/* What speed do you want to drive the motor with? */
+#define OMEGA_ACCEL	10		// Motor Speed
 
 /* How many steps do you want to move? */
-#define DISTANCE	800	// [steps]
+#define DISTANCE 20
 
-/* What is the desired maximum speed? */
-#define MAXSPEED	300 // [steps/s]
+/********************************************
+ * make no changes beyond this line
+ * ******************************************/
 
-/* What acceleration do you want to drive the motor with? */
-#define OMEGA_ACCEL	300.0		// Motor Acceleration in steps/s^2
-
-/* Turn right or left? */
-#define DIRECTION	1	// 1 = RIGHT, 0 = LEFT
- 
-/* How many steps does your motor make per round? */
-#define SPR	200		// steps per round of your motor
-
-
-/********************************************/
-
-#define	PI				3.1415926
-#define	FREQ			12000000						// timer frequency in Hz
-#define	ANGLE			2.0*PI/SPR					// alpha in rad
-#define	OMEGA			ANGLE*OMEGA_ACCEL	// omega in rad/s^2
-#define MAXSPEED_DELAY FREQ*ANGLE*200/(2*PI*MAXSPEED)
-#define	FIRSTDELAY (int)((FREQ * sqrt(2.0*ANGLE/(OMEGA))) * 0.676)
+#define		PI				3.1415926
+#define		FREQ			12000000				// timer frequency in Hz
+#define		ANGLE			(2.0*PI)/SPR		// alpha in rad
+#define		OMEGA			(2.0*PI)/FREQ		// omega in rad
+//extern const double	ANGLE	=		(2.0*PI)/SPR;	// alpha in rad
+//extern const double	OMEGA	=		(2.0*PI)/FREQ;	// omega in rad
 
 /********************************************
  *	functions
@@ -58,8 +48,8 @@
  * introduces an error of 0.44 at n = 1. A way to compensate for this 
  * error is by multiplying c[0] with 0.676.
  */
-
-double cntVal(double cntValPrevious, int n, int acc);
+double firstDelayC0(void);
+double cntVal(double cntValPrevious, int n);
 /* Step Pulse
  * ^           ^           ^
  * |           |           |
@@ -72,5 +62,7 @@ double cntVal(double cntValPrevious, int n, int acc);
  * The delay dt programmed by the counter is:
  * 	dt = c*t = c/ft (s)
  */
+int stepPulse(double cntVal);
+double velocity(double cycles);
 
 #endif
