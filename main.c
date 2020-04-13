@@ -22,7 +22,7 @@
 /* How many steps do you want to move? */
 #define DISTANCE 200	// [steps]
 #define ACCELERATION		// [steps/s^2]
-#define MAXSPEED 270000.0
+#define MAXSPEED 260000.0
 #define DIRECTION	1	//1 = RIGHT, 0 = LEFT
 
 
@@ -170,7 +170,6 @@ int main (){
 				}
 			}
 		}else if(stepcnt_tot == DISTANCE){
-			toggle_dir();
 			vmax_reached = 0;
 		}
 		
@@ -222,6 +221,9 @@ void __irq T0ISR() {
 	
 	FIO3SET3 = STEP; 			/* Step HIGH */
 	FIO2SET |= BIT1;
+	
+	if(stepcnt_tot == DISTANCE)
+		toggle_dir();
 	
 	T0IR = 0x01;			/* Clear interrupt flag */
 	VICVectAddr = 0;	/* Acknowledge Interrupt */

@@ -10,7 +10,7 @@
 #define SPR		200		// steps per round of your motor
 
 /* What acceleration do you want to drive the motor with? */
-#define OMEGA_ACCEL	5.0		// Motor Acceleration in steps/s^2
+#define OMEGA_ACCEL	20.0		// Motor Acceleration in steps/s^2
 
 /********************************************/
 
