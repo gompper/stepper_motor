@@ -21,6 +21,8 @@
 
 /* How many steps do you want to move? */
 #define DISTANCE 200
+#define ACCELERATION
+#define MAXSPEED
 
 
 /***********************************
@@ -92,6 +94,8 @@ static void InitTimer3(void);
 
 void MotorControlPinConfiguration(void);
 
+void toggle_dir(void);
+
 
  /***********************************
 * MAIN
@@ -144,6 +148,8 @@ int main (){
 			acc = 1;
 		}else if(stepcnt_tot < DISTANCE){
 			acc = -1;
+		}else if(stepcnt_tot == DISTANCE){
+			toggle_dir();
 		}
 		
 //		if(stepcnt >= accSteps){
@@ -345,4 +351,15 @@ void MotorControlPinConfiguration(void){
 		/* (DEBUG) set LED */
 		FIO2SET |= BIT4;			/* Enable ist low Active */
 
+}
+
+/* Richtung toggeln */
+void toggle_dir(){
+	int reg_dir = FIO4PIN0 & DIR; 
+	if(reg_dir > 0){
+		FIO4CLR0 = DIR;
+	}
+	else{
+		FIO4SET0 = DIR;
+	}
 }
