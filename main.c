@@ -15,8 +15,6 @@
 #include <LPC23xx.h>                    /* LPC23xx definitions                */
 #include "linear_acceleration.h"
 
-
-
 /***********************************
 * PINS
 ************************************/
@@ -26,7 +24,7 @@
 #define SLEEP 	BIT1	// P3.25
 #define STEP 		BIT2 	// P3.26	
 
-/* Microstep selection */
+/* Microstep Selection Bits */
 #define MS1 BIT2	// P4.2
 #define MS2 BIT1	// P4.1
 #define MS3 BIT0	// P4.0
@@ -58,6 +56,7 @@
 
 #define RIGHT 1
 #define LEFT	0
+
 /***********************************
 * GLOBAL VARIABLES
 ************************************/
@@ -111,36 +110,9 @@ int main (){
 	FIO2DIR  = 0x000000FF;                /* P2.0..7 defined as Outputs         */
   FIO2MASK = 0x00000000;
 	
-//	double noChange = 0;			/* amount of steps we drive in max speed */
-
-//	peakCycles 	= 2565239;		//first delay
-	
-	/* calculate max speed for desired distance */
-//	while(accSteps < (DISTANCE/2)){	/* after half the way we need to start slowing down again */
-//		peakCycles = cntVal(peakCycles, accSteps, acc);
-//		if (peakCycles <= MAX_SPEED){	/* we are not half way but reached maximum speed */
-//			peakCycles = MAX_SPEED;															
-//			break;
-//		}
-//		accSteps++;
-//		totalaccCycles += peakCycles;
-//	}
-
-//	/* how long do we have constant speed? */
-//	if (peakCycles == MAX_SPEED){
-//		noChange = DISTANCE - 2 * accSteps;							/* steps we spend in constant (max) speed */
-//		breakCycles = (noChange + totalaccCycles);		  /* at this time we need to slow down */
-//	} else {
-//		breakCycles = totalaccCycles;
-//	}
-//	total = totalaccCycles + breakCycles;			/* total cycles from beginning to end */
-//	breakSteps = DISTANCE-accSteps;
-	
 	/* config timer */
 	InitTimer0();
 	InitTimer1();
-//	InitTimer2();
-//	InitTimer3();
 	
 	/* config motor */
 	MotorControlPinConfiguration();
@@ -166,16 +138,7 @@ int main (){
 		}else if(stepcnt_tot == DISTANCE){
 			vmax_reached = 0;
 		}
-		
-//		if(stepcnt >= accSteps){
-//			acc = 0;
-//		} else if (stepcnt >= breakSteps){
-//			acc = -1;
-//		} else {
-//			acc = 1;
-//		}
-	}
-		
+	}	
 }
 
 
@@ -188,14 +151,10 @@ int main (){
 void __irq T0ISR() {
 	T0TCR = 0x02; // Counter Reset
 	
-//	VICVectAddr4 = (unsigned long)T0ISR;
-//	VICVectPriority4 = 0;
-//	VICIntEnable |= 1 << INT_TMR0;
-	
 	if(stepcnt_tot < DISTANCE){
 		stepcnt_tot++;
 	}else{
-		stepcnt_tot = 0;
+		stepcnt_tot = 1;
 	}
 	
 	if (acc == 1) { stepcnt++; }
@@ -203,8 +162,6 @@ void __irq T0ISR() {
 	if (acc == 0 && vmax_reached == 0) {vmax_reached = stepcnt_tot;}
 	
 	if ((FIO4PIN0 & DIR) > 0){position++;} else {position--;} // Aktuelle Richtung auslesen und Position updaten
-	
-	
 	
 	cycles = cntVal(T0MR0, stepcnt, acc);	// Neues Delay berechnen
 		
@@ -216,8 +173,7 @@ void __irq T0ISR() {
 	FIO3SET3 = STEP; 			/* Step HIGH */
 	FIO2SET |= BIT1;
 	
-	if(stepcnt_tot == DISTANCE)
-		toggle_dir();
+	if(stepcnt_tot == DISTANCE) toggle_dir();
 	
 	T0IR = 0x01;			/* Clear interrupt flag */
 	VICVectAddr = 0;	/* Acknowledge Interrupt */
@@ -260,13 +216,12 @@ void __irq T3ISR() {
 	T3TCR = 0x01; 
 
 }
-/* TIMER INITIALISATIONS */
+/* TIMER INITIALIZATIONS */
 static void InitTimer0(void){
 	T0TCR = 0x02;
 	T0MR0 = FIRSTDELAY;
 	
 	T0MCR = 0x03; // interrupt on MR0; reset on MR0; 
-	//T0MCR = 0x07; // interrupt on MR0; reset on MR0; stop on MR0
 	
 	VICVectAddr4 = (unsigned long)T0ISR;
 	VICVectPriority4 = 0;
@@ -280,7 +235,6 @@ static void InitTimer1(void){
 	T1MR0 = T0MR0/2;
 	
 	T1MCR = 0x03; // interrupt on MR0; reset on MR0; 
-	//T1MCR = 0x7; // interrupt on MR0; reset on MR0; stop on MR0
 	
 	VICVectAddr5 = (unsigned long)T1ISR;
 	VICVectPriority4 = 1;
@@ -304,32 +258,15 @@ static void InitTimer2(void){
 	T2TCR = 0x01;
 }
 
-
-static void InitTimer3(void){
-	PCONP |= 0x1 << 23;			/* power timer 3 */
-
-	T3TCR = 0;
-//	T3MR0 = breakCycles;
-	
-	T3MCR = 0x03;
-	
-	VICVectAddr27 = (unsigned long)T3ISR;
-	VICVectPriority5 = 0;
-	VICIntEnable |= 1 << INT_TMR3;
- 
-	T3TCR = 0x01;
-}
-
 /* MOTOR CONFIGURATIONS */
 void MotorControlPinConfiguration(void){
 	/* Pin Function */
 	/* 00 = GPIO */
 		PINSEL3 &= 0x00000000;		// P1.16..31	
 		PINSEL6 &= 0x00005555; 		// P3.00..15
-		PINSEL7 &= 0x00000000;		// P3.16..31 <--
-		PINSEL8 &= 0x55555400;		// P4.00..15 <--
+		PINSEL7 &= 0x00000000;		// P3.16..31 
+		PINSEL8 &= 0x55555400;		// P4.00..15 
 		PINSEL9 &= 0x50090000;		// P4.16..31
-		//PINSEL10 &= 0x00000008;		// ETM Interface
 		PINSEL10 &= 0x00000000;		// ETM Interface disabled
 	
 	/* Pull-Up/-Down Resistors */
@@ -362,17 +299,13 @@ void MotorControlPinConfiguration(void){
 	/* Schrittweite festlegen */
 		//FIO4SET0 |= MS1 + MS2 + MS3; // Sixteenth Step 
 		FIO4CLR0 |= MS1 + MS2 + MS3; // Full Step
+		
 		/* (DEBUG) set LED */
 		FIO2CLR |= BIT7 | BIT6 | BIT5;			/* Enable ist low Active */
 		
 		
 	/* Richtung festlegen */
 		turn(DIRECTION);
-		//FIO4SET0 |= DIR; // rotate right
-		//FIO4CLR0 = DIR; // rotate left
-		/* (DEBUG) set LED */
-		//FIO2SET |= BIT4;			/* Enable ist low Active */
-
 }
 
 /* Richtung toggeln */

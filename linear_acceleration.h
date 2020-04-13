@@ -12,10 +12,13 @@
 ************************************/
 
 /* How many steps do you want to move? */
-#define DISTANCE	200	// [steps]
+#define DISTANCE	800	// [steps]
 
 /* What is the desired maximum speed? */
-#define MAXSPEED	60 // [steps/s]
+#define MAXSPEED	300 // [steps/s]
+
+/* What acceleration do you want to drive the motor with? */
+#define OMEGA_ACCEL	300.0		// Motor Acceleration in steps/s^2
 
 /* Turn right or left? */
 #define DIRECTION	1	// 1 = RIGHT, 0 = LEFT
@@ -23,8 +26,6 @@
 /* How many steps does your motor make per round? */
 #define SPR	200		// steps per round of your motor
 
-/* What acceleration do you want to drive the motor with? */
-#define OMEGA_ACCEL	20.0		// Motor Acceleration in steps/s^2
 
 /********************************************/
 
@@ -57,7 +58,7 @@
  * introduces an error of 0.44 at n = 1. A way to compensate for this 
  * error is by multiplying c[0] with 0.676.
  */
-double firstDelayC0(void);
+
 double cntVal(double cntValPrevious, int n, int acc);
 /* Step Pulse
  * ^           ^           ^
@@ -71,7 +72,5 @@ double cntVal(double cntValPrevious, int n, int acc);
  * The delay dt programmed by the counter is:
  * 	dt = c*t = c/ft (s)
  */
-int stepPulse(double cntVal);
-double circSpeed(double cycles);
 
 #endif
