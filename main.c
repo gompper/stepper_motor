@@ -20,9 +20,10 @@
 ************************************/
 
 /* How many steps do you want to move? */
-#define DISTANCE 200
-#define ACCELERATION
+#define DISTANCE 200	// [steps]
+#define ACCELERATION		// [steps/s^2]
 #define MAXSPEED
+#define DIRECTION	1	//1 = RIGHT, 0 = LEFT
 
 
 /***********************************
@@ -95,6 +96,9 @@ static void InitTimer3(void);
 void MotorControlPinConfiguration(void);
 
 void toggle_dir(void);
+void turn(int dir);
+void turn_left(void);
+void turn_right(void);
 
 
  /***********************************
@@ -346,10 +350,11 @@ void MotorControlPinConfiguration(void){
 		
 		
 	/* Richtung festlegen */
-		FIO4SET0 |= DIR; // rotate right
+		turn(DIRECTION);
+		//FIO4SET0 |= DIR; // rotate right
 		//FIO4CLR0 = DIR; // rotate left
 		/* (DEBUG) set LED */
-		FIO2SET |= BIT4;			/* Enable ist low Active */
+		//FIO2SET |= BIT4;			/* Enable ist low Active */
 
 }
 
@@ -362,4 +367,36 @@ void toggle_dir(){
 	else{
 		FIO4SET0 = DIR;
 	}
+}
+
+/* Richtung vorgeben */
+void turn(int dir){
+	switch(dir){
+		case RIGHT:
+			turn_right();
+		
+			/* DEBUG */
+			FIO2SET |= BIT4;
+		
+			break;
+		case LEFT:
+			turn_left();
+			
+			/* DEBUG */
+			FIO2CLR |= BIT4;
+		
+			break;
+		default:
+			break;
+	}
+}
+
+/* Rechts herum drehen */
+void turn_right(){
+	FIO4SET0 = DIR;
+}
+
+/* Links herum drehen */
+void turn_left(){
+	FIO4CLR0 = DIR;
 }
