@@ -12,13 +12,13 @@
 ************************************/
 
 /* How many steps do you want to move? */
-#define DISTANCE	800	// [steps]
+#define DISTANCE	200	// [steps]
 
 /* What is the desired maximum speed? */
-#define MAXSPEED	300 // [steps/s]
+#define MAXSPEED	200 // [steps/s]
 
 /* What acceleration do you want to drive the motor with? */
-#define OMEGA_ACCEL	300.0		// Motor Acceleration in steps/s^2
+#define OMEGA_ACCEL	10.0		// Motor Acceleration in steps/s^2
 
 /* Turn right or left? */
 #define DIRECTION	1	// 1 = RIGHT, 0 = LEFT

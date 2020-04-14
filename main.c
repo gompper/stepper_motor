@@ -69,10 +69,6 @@
 	static int vmax_reached = 0;	// Relative Position bei der die maximale Geschw. erreicht wurde.
 	
 	static int acc = 1;
-	static double peakCycles, breakCycles, total;
-	int breakSteps;
-	long totalaccCycles = 2565239; 	//first delay
-	int accSteps = 1;					/* how many steps we need/have for acceleration and breaking */
 
 /***********************************
 * FUNCTION DECLARATION
@@ -273,10 +269,10 @@ void MotorControlPinConfiguration(void){
 void toggle_dir(){
 	int reg_dir = FIO4PIN0 & DIR; 
 	if(reg_dir > 0){
-		FIO4CLR0 = DIR;
+		turn(LEFT);
 	}
 	else{
-		FIO4SET0 = DIR;
+		turn(RIGHT);
 	}
 }
 
